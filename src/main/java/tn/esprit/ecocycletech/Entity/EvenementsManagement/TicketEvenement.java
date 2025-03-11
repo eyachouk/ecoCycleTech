@@ -16,6 +16,7 @@ import java.util.Date;
 @Setter
 public class TicketEvenement {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int idTicketEvenement;
     @ManyToOne
     @JoinColumn(name = "evenement", nullable = false)

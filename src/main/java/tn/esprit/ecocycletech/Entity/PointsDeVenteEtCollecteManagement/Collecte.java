@@ -17,6 +17,7 @@ import java.util.Date;
 @Setter
 public class Collecte {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int idCollecte;
     @Temporal(TemporalType.DATE)
     private Date dateCollecte;
@@ -26,6 +27,8 @@ public class Collecte {
     @ManyToOne
     @JoinColumn(name = "idPointCollecte", nullable = false)
     private PointCollecte pointCollecte;
-
+    @ManyToOne
+    @JoinColumn(name = "idVehicule", nullable = false)
+    private Vehicule vehicule;
 
 }
