@@ -48,7 +48,7 @@ public class User {
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
     private List<Avis> avis;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
-    private List<Reservation> reservation;
+    private List<Reservation> reservations;
     @OneToOne
     private EspaceStockage espace;
 }
