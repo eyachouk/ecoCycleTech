@@ -19,7 +19,7 @@ import java.util.List;
 public class PlanStockage implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long idPlan;
+    private int idPlan;
     private String titre;
     private BigDecimal tailleMax;
     private double prix;

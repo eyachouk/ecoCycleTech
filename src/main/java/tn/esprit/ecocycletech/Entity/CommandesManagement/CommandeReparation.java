@@ -10,6 +10,7 @@ import tn.esprit.ecocycletech.Entity.Enumerations.TypeAppareil;
 import tn.esprit.ecocycletech.Entity.PointsDeVenteEtCollecteManagement.PointVente;
 import tn.esprit.ecocycletech.Entity.UserManagement.User;
 
+import java.io.Serializable;
 import java.util.Date;
 
 @Entity
@@ -17,7 +18,7 @@ import java.util.Date;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class CommandeReparation {
+public class CommandeReparation implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int idCommandeReparation;

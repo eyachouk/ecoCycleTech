@@ -20,7 +20,7 @@ public class Avis implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long idAvis;
+    private int idAvis;
 
     private String contenu;
 

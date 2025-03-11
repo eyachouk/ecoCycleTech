@@ -1,4 +1,4 @@
-package tn.esprit.ecocycletech.Entity.StockageManagement;
+package tn.esprit.ecocycletech.Entity.Enumerations;
 
 public enum TypeFichier {
     Image,

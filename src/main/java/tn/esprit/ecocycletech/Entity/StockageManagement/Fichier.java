@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import tn.esprit.ecocycletech.Entity.Enumerations.TypeFichier;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -19,7 +20,7 @@ import java.util.Date;
 public class Fichier implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long idFichier;
+    private int idFichier;
     private String nom;
     private BigDecimal taille;
     @Temporal(TemporalType.DATE)

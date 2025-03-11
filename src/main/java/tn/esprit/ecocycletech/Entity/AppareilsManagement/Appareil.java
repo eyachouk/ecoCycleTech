@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import tn.esprit.ecocycletech.Entity.Enumerations.EtatAppareil;
 
 import java.io.Serializable;
 import java.util.List;
@@ -18,11 +19,11 @@ import java.util.List;
 public class Appareil implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long idAppareil;
+    private int idAppareil;
 
     private String nom;
     private String categorie;
-    private TypeAppareil type;
+    private EtatAppareil etatAppareil;//kenet esmha type walet esmha etat
     private String marque;
     private int quantite;
     private double prix;

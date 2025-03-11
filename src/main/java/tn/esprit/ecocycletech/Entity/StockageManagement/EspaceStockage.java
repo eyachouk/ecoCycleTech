@@ -21,7 +21,7 @@ import java.util.List;
 public class EspaceStockage implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long idEspace;
+    private int idEspace;
     private BigDecimal usedTaille;
     private double prix;
     @Temporal(TemporalType.DATE)

@@ -14,6 +14,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import tn.esprit.ecocycletech.Entity.StockageManagement.EspaceStockage;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
@@ -22,7 +23,7 @@ import java.util.List;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class User {
+public class User implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int idUser;
@@ -46,9 +47,9 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<DemandeRecyclage> demandeRecyclageList;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
-    private List<Avis> avis;
+    private List<Avis> avisList;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
-    private List<Reservation> reservations;
+    private List<Reservation> reservationList;
     @OneToOne
     private EspaceStockage espace;
 }
