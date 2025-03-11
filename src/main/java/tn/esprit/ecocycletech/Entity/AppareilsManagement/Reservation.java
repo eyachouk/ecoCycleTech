@@ -25,7 +25,7 @@ public class Reservation implements Serializable {
     private double total;
     @Temporal(TemporalType.DATE)
     private Date date;
-    @OneToOne(cascade = CascadeType.ALL,mappedBy = "reservation")
+    @ManyToOne
     private User user;
     @OneToMany(cascade = CascadeType.ALL,mappedBy = "reservation")
     private List<Appareil> panier;

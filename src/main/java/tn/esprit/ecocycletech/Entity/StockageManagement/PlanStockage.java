@@ -1,9 +1,6 @@
 package tn.esprit.ecocycletech.Entity.StockageManagement;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,6 +8,7 @@ import lombok.Setter;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.List;
 
 @Entity
 
@@ -25,4 +23,6 @@ public class PlanStockage implements Serializable {
     private String titre;
     private BigDecimal tailleMax;
     private double prix;
+    @OneToMany(cascade = CascadeType.ALL,mappedBy = "planStockage")
+    private List<EspaceStockage> espaces;
 }

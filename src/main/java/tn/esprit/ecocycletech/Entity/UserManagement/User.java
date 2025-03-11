@@ -1,5 +1,7 @@
 package tn.esprit.ecocycletech.Entity.UserManagement;
 
+import tn.esprit.ecocycletech.Entity.AppareilsManagement.Avis;
+import tn.esprit.ecocycletech.Entity.AppareilsManagement.Reservation;
 import tn.esprit.ecocycletech.Entity.CommandesManagement.CommandeReparation;
 import tn.esprit.ecocycletech.Entity.DemandeDeRecyclageManagement.DemandeRecyclage;
 import tn.esprit.ecocycletech.Entity.EvenementsManagement.Evenement;
@@ -10,6 +12,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import tn.esprit.ecocycletech.Entity.StockageManagement.EspaceStockage;
 
 import java.util.Date;
 import java.util.List;
@@ -42,4 +45,10 @@ public class User {
     private List<TicketEvenement> ticketEvenementList;
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<DemandeRecyclage> demandeRecyclageList;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
+    private List<Avis> avis;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
+    private List<Reservation> reservation;
+    @OneToOne
+    private EspaceStockage espace;
 }

@@ -9,6 +9,7 @@ import tn.esprit.ecocycletech.Entity.UserManagement.User;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 
 @Entity
@@ -23,8 +24,12 @@ public class EspaceStockage implements Serializable {
     private long idEspace;
     private BigDecimal usedTaille;
     private double prix;
+    @Temporal(TemporalType.DATE)
+    private Date dateExpiration;
     @OneToMany(cascade = CascadeType.ALL,mappedBy = "espace")
     private List<Fichier> fichiers;
     @OneToOne(cascade = CascadeType.ALL,mappedBy = "espace")
     private User user;
+    @ManyToOne
+    private PlanStockage planStockage;
 }
