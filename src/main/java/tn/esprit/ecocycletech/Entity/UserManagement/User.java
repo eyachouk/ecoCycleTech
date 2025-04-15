@@ -1,5 +1,7 @@
     package tn.esprit.ecocycletech.Entity.UserManagement;
 
+    import jakarta.validation.constraints.Email;
+    import jakarta.validation.constraints.Pattern;
     import lombok.*;
     import org.springframework.format.annotation.DateTimeFormat;
     import org.springframework.security.core.GrantedAuthority;
@@ -33,18 +35,20 @@
         @GeneratedValue(strategy = GenerationType.IDENTITY)
         //@Column(unique = true, nullable = false)
         private int idUser;
-        //@Column(nullable = false)
+        @Column(nullable = false)
         private String nom;
-        //@Column(nullable = false)
+        @Column(nullable = false)
         private String prenom;
-        //@Column(nullable = false)
+        @Column(nullable = false)
+        @Email(message = "Email Format Invalid")
+        @Pattern(regexp = ".+@.+\\..+", message = "Must be a valid email (ex: user@example.com)")
         private String email;
-        //@Column(nullable = false)
+        @Column(nullable = false)
         private String username;
-        //@Column(nullable = false)
-        private String numTelephone;
-       // @Temporal(TemporalTypeDATE)
-        //@Column(nullable = false)
+        @Column(nullable = false)
+        private Long numTelephone;
+        @Temporal(TemporalType.DATE)
+        @Column(nullable = false)
         @DateTimeFormat(pattern = "yyyy-MM-dd")
         private LocalDate dateNaissance;
         private String adresse;
@@ -53,7 +57,7 @@
         private UserRole role=UserRole.USER;
         //@Column(nullable = true)
         private String photoDeProfil;
-        //@Column(nullable = false)
+        @Column(nullable = false)
 
         private String password;
 
@@ -83,5 +87,6 @@
         public Collection<? extends GrantedAuthority> getAuthorities() {
             return List.of(new SimpleGrantedAuthority(role.name()));
         }
-
+        @OneToOne
+        private ForgotPassword forgotPassword;
     }

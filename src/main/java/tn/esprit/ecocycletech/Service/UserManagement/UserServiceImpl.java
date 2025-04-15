@@ -4,6 +4,8 @@ package tn.esprit.ecocycletech.Service.UserManagement;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -13,6 +15,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import tn.esprit.ecocycletech.DTO.LoginRequest;
 import tn.esprit.ecocycletech.DTO.LoginResponse;
+import tn.esprit.ecocycletech.DTO.MailBody;
 import tn.esprit.ecocycletech.DTO.RegisterRequest;
 import tn.esprit.ecocycletech.Entity.UserManagement.User;
 import tn.esprit.ecocycletech.Entity.Enumerations.UserRole;
@@ -32,12 +35,6 @@ public class UserServiceImpl implements IUserService{
 
     private final AuthenticationManager authenticationManager;
 
-
-//@Autowired
-//    public UserServiceImpl(IUserRepository userRepository, PasswordEncoder passwordEncoder) {
-//        this.userRepository = userRepository;
-//       this.passwordEncoder = passwordEncoder;
-//    }
 
     public User registerUser(RegisterRequest request) throws IllegalArgumentException,RuntimeException{
         if (request.getNom() == null || request.getPrenom() == null ||
@@ -65,7 +62,7 @@ public class UserServiceImpl implements IUserService{
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setPhotoDeProfil(request.getPhotoDeProfil());
         // Set default values
-        user.setRole(UserRole.USER);
+        user.setRole(UserRole.ADMIN);
         user.setActive(true);
         user.setBanned(false);
         // Build and save the user
@@ -99,5 +96,9 @@ public class UserServiceImpl implements IUserService{
                 .role(user.getRole().name())
                 .build();
     }
+
+
+
+
 
 }
