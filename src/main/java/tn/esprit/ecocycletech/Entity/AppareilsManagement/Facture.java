@@ -18,7 +18,7 @@ import java.util.Date;
 public class Facture implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int idFacture;
+    private long idFacture;
     @Temporal(TemporalType.DATE)
     private Date date;
     @OneToOne

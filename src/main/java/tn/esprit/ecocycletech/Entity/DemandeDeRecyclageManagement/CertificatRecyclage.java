@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import tn.esprit.ecocycletech.Entity.CommandesManagement.RendezVous;
 
-import java.io.Serializable;
 import java.util.Date;
 
 @Entity
@@ -15,7 +14,7 @@ import java.util.Date;
 @NoArgsConstructor
 @Getter
 @Setter
-public class CertificatRecyclage implements Serializable {
+public class CertificatRecyclage {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int idCertificatRecyclage;

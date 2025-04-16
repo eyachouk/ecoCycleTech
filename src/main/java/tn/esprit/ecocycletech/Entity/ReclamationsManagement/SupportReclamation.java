@@ -6,7 +6,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.io.Serializable;
 import java.util.Date;
 
 @Entity
@@ -14,7 +13,7 @@ import java.util.Date;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class SupportReclamation implements Serializable {
+public class SupportReclamation {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int idSupportReclamation;

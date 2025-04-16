@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import tn.esprit.ecocycletech.Entity.UserManagement.User;
 
-import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
@@ -16,7 +15,7 @@ import java.util.List;
 @NoArgsConstructor
 @Setter
 @Getter
-public class Evenement implements Serializable {
+public class Evenement {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int idEvenement;

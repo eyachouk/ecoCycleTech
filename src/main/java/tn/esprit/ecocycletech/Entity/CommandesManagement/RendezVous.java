@@ -8,7 +8,6 @@ import lombok.Setter;
 import tn.esprit.ecocycletech.Entity.ReclamationsManagement.Reclamation;
 import tn.esprit.ecocycletech.Entity.ReclamationsManagement.SupportReclamation;
 
-import java.io.Serializable;
 import java.util.Date;
 
 @Entity
@@ -16,7 +15,7 @@ import java.util.Date;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class RendezVous implements Serializable {
+public class RendezVous {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int idRendezVous;

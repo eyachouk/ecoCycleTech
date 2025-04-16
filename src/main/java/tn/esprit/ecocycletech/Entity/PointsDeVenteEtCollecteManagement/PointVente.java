@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import tn.esprit.ecocycletech.Entity.CommandesManagement.CommandeReparation;
 
-import java.io.Serializable;
 import java.time.LocalTime;
 import java.util.List;
 
@@ -16,7 +15,7 @@ import java.util.List;
 @AllArgsConstructor
 @Getter
 @Setter
-public class PointVente implements Serializable {
+public class PointVente {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int idPointVente;

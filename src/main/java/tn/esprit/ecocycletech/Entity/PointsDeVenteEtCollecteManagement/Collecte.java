@@ -8,7 +8,6 @@ import lombok.Setter;
 import tn.esprit.ecocycletech.Entity.DemandeDeRecyclageManagement.DemandeRecyclage;
 import tn.esprit.ecocycletech.Entity.UserManagement.User;
 
-import java.io.Serializable;
 import java.util.Date;
 
 @Entity
@@ -16,7 +15,7 @@ import java.util.Date;
 @AllArgsConstructor
 @Getter
 @Setter
-public class Collecte implements Serializable {
+public class Collecte {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int idCollecte;

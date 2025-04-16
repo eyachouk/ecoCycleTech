@@ -20,7 +20,7 @@ import java.util.List;
 public class Reservation implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int idReservation;
+    private long idReservation;
     private String statut;
     private double total;
     @Temporal(TemporalType.DATE)
