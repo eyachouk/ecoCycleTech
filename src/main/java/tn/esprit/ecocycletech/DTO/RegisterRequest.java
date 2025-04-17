@@ -20,5 +20,6 @@ public class RegisterRequest {
     private LocalDate dateNaissance;
     private String adresse;
     private String password;
-    private String photoDeProfil; // Optional
+    // In RegisterRequest.java
+    private byte[] photoDeProfil;
 }

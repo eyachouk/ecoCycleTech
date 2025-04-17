@@ -9,5 +9,6 @@ import tn.esprit.ecocycletech.Entity.UserManagement.User;
 public interface IUserService {
     User registerUser(RegisterRequest request);
      LoginResponse login(LoginRequest request);
+    boolean verifyEmail(String token);
 
     }

@@ -56,15 +56,20 @@
         @Builder.Default
         private UserRole role=UserRole.USER;
         //@Column(nullable = true)
-        private String photoDeProfil;
+        @Lob
+        @Column(name = "photo_de_profil", length = 1048576) // 1MB max
+        private byte[] photoDeProfil;
+        //private String photoDeProfil;
         @Column(nullable = false)
-
         private String password;
 
         @Builder.Default
         private boolean isActive = true;
         @Builder.Default
         private boolean isBanned = false;
+
+        //verification email
+        private boolean emailVerified = false;
 
 
 
@@ -84,9 +89,10 @@
         @OneToOne(cascade = CascadeType.ALL)
         @JoinColumn(name = "idEspace", referencedColumnName = "idEspace")
         private EspaceStockage espace;
+        @OneToOne
+        private ForgotPassword forgotPassword;
         public Collection<? extends GrantedAuthority> getAuthorities() {
             return List.of(new SimpleGrantedAuthority(role.name()));
         }
-        @OneToOne
-        private ForgotPassword forgotPassword;
+
     }

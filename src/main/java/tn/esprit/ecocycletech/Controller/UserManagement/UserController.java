@@ -1,36 +1,159 @@
 package tn.esprit.ecocycletech.Controller.UserManagement;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
-import org.springframework.http.MediaType;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import tn.esprit.ecocycletech.DTO.LoginRequest;
 import tn.esprit.ecocycletech.DTO.LoginResponse;
 import tn.esprit.ecocycletech.DTO.RegisterRequest;
 import tn.esprit.ecocycletech.Entity.UserManagement.User;
+import tn.esprit.ecocycletech.ExceptionHandling.UserRegistrationException;
+import tn.esprit.ecocycletech.Security.JwtUtils;
 import tn.esprit.ecocycletech.Service.UserManagement.IUserService;
+import tn.esprit.ecocycletech.Service.UserManagement.RecaptchaService;
+
+import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
 @AllArgsConstructor
 public class UserController {
 
-    private IUserService userService;
+    private final IUserService userService;
+    private final JwtUtils jwtTokenProvider;
+    private final RecaptchaService recaptchaService;
+
+    @PostMapping("/register")
+    public ResponseEntity<Map<String, Object>> registerUser(
+            @RequestParam(value = "photoDeProfil", required = false) MultipartFile file,
+            @RequestParam("nom") String nom,
+            @RequestParam("prenom") String prenom,
+            @RequestParam("email") String email,
+            @RequestParam("username") String username,
+            @RequestParam("numTelephone") Long numTelephone,
+            @RequestParam("dateNaissance") String dateNaissance,
+            @RequestParam("adresse") String adresse,
+            @RequestParam("password") String password,
+            @RequestParam("recaptchaToken") String recaptchaToken) {
+
+        Map<String, Object> response = new HashMap<>();
+
+            // Validate reCAPTCHA token first
 
 
-    @PostMapping(value = "/register", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<User> register(@Valid @RequestBody RegisterRequest request) {
-        System.out.println("Received request: " + request);
-        return ResponseEntity.ok(userService.registerUser(request));
+        try {
+            if (!recaptchaService.validateToken(recaptchaToken)) {
+                response.put("success", false);
+                response.put("error", "reCAPTCHA validation failed");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+            }
+            // Validation basique des paramètres
+            if (email == null || email.isEmpty()) {
+                throw new IllegalArgumentException("Email is required");
+            }
+            // Ajouter d'autres validations si nécessaire
+
+            RegisterRequest request = new RegisterRequest();
+            request.setNom(nom);
+            request.setPrenom(prenom);
+            request.setEmail(email);
+            request.setUsername(username);
+            request.setNumTelephone(numTelephone);
+            request.setDateNaissance(LocalDate.parse(dateNaissance));
+            request.setAdresse(adresse);
+            request.setPassword(password);
+
+            if (file != null && !file.isEmpty()) {
+                request.setPhotoDeProfil(file.getBytes());
+            }
+
+            User user = userService.registerUser(request);
+            UserDetails userDetails = getUserDetails(user);
+
+            String token = jwtTokenProvider.generateToken(userDetails);
+
+            response.put("success", true);
+            response.put("message", "User registered successfully");
+            response.put("token", token);
+            response.put("userId", user.getIdUser());
+
+            return ResponseEntity.ok(response);
+
+        } catch (UserRegistrationException e) {
+            response.put("success", false);
+            response.put("error", e.getMessage());
+            response.put("field", e.getFieldName());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        } catch (IllegalArgumentException e) {
+            response.put("success", false);
+            response.put("error", e.getMessage());
+            return ResponseEntity.badRequest().body(response);
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("error", "An unexpected error occurred");
+            return ResponseEntity.internalServerError().body(response);
+        }
     }
+
     @GetMapping("/ping")
-    public String ping() {
-        return "Server is up and running!";
+    public ResponseEntity<Map<String, String>> ping() {
+        return ResponseEntity.ok(Map.of("status", "Server is up and running!"));
     }
+
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
-        System.out.println("Login endpoint hit for email: " + request.getEmail());
-        return ResponseEntity.ok(userService.login(request));
+    public ResponseEntity<?> login(@Valid @RequestBody LoginRequest request) {
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            LoginResponse loginResponse = userService.login(request);
+            response.put("success", true);
+            response.put("data", loginResponse);
+            return ResponseEntity.ok(response);
+        } catch (RuntimeException e) {
+            response.put("success", false);
+            response.put("error", e.getMessage());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+        }
+    }
+
+    @GetMapping("/verify")
+    public ResponseEntity<Map<String, Object>> verifyEmail(@RequestParam("token") String token) {
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            boolean verified = userService.verifyEmail(token);
+            if (verified) {
+                response.put("success", true);
+                response.put("message", "Email verified successfully");
+                return ResponseEntity.ok(response);
+            } else {
+                response.put("success", false);
+                response.put("error", "Invalid or expired token");
+                return ResponseEntity.badRequest().body(response);
+            }
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("error", "Verification process failed");
+            return ResponseEntity.internalServerError().body(response);
+        }
+    }
+
+    private UserDetails getUserDetails(User user) {
+        return org.springframework.security.core.userdetails.User
+                .withUsername(user.getEmail())
+                .password(user.getPassword())
+                .authorities(user.getRole().name())
+                .build();
     }
 }
