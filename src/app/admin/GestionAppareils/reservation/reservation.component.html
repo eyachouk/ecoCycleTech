@@ -1,0 +1,28 @@
+<main class="col-md-10 offset-md-2 p-4" style="margin-left: 16.66667%; padding-top: 20px;">
+<h1>Liste des Reservations</h1>
+<button routerLink="/admin/AddReservation">
+  Ajouter une Reservation
+</button>
+
+
+<!-- Sorting Button -->
+<button (click)="toggleSort()" class="btn btn-light">
+  <i [ngClass]="isAscending ? 'fas fa-sort-up' : 'fas fa-sort-down'"></i>
+</button>
+
+<div class="card-stack">
+    <div *ngFor="let reservation of listReservations; let i = index" class="card" style="width: 18rem;">
+        <div class="card-body">
+            <h5 class="card-title">{{ reservation.total }}</h5>
+            <p class="card-text"><strong>Statut:</strong> {{ reservation.statut }}</p>
+            <p class="card-text"><strong>Date:</strong> {{ reservation.date }}</p>
+            <p class="card-text"><strong>User:</strong> {{ reservation.user }}</p>
+        </div>
+        <button *ngIf="isClient" class="btn btn-primary" (click)="payer(reservation.idReservation, reservation.total)">
+          Payer la reservation
+        </button>
+        <button class="btn btn-danger" (click)="supprimer(reservation.idReservation)">Supprimer</button>
+        <button class="btn btn-success" [routerLink]="['/admin/AddReservation', reservation.idReservation]">Modifier</button>
+      </div>
+</div>
+</main>

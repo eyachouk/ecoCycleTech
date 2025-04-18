@@ -1,0 +1,83 @@
+<main class="col-md-10 offset-md-2 p-4" style="margin-left: 16.66667%; padding-top: 20px;">
+<h1>Appareil</h1>
+
+<div class="card mt-4">
+  <div class="card-header bg-primary text-white">
+    Informations sur l'appareil
+  </div>
+
+  <div class="card-body">
+    <form [formGroup]="AppareilForm">
+      <div class="mb-3">
+        <label>Nom</label>
+        <input type="text" class="form-control" placeholder="Nom de l'appareil" formControlName="nom">
+        <div *ngIf="AppareilForm.controls['nom']?.invalid && AppareilForm.controls['nom']?.touched" class="alert alert-danger mt-1">
+          <p *ngIf="AppareilForm.controls['nom']?.hasError('required')">Le nom est obligatoire</p>
+          <p *ngIf="AppareilForm.controls['nom']?.hasError('minlength')">Le nom doit contenir au moins 4 caractères</p>
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label>État de l'appareil</label>
+        <select class="form-control" formControlName="etatAppareil">
+          <option value="" disabled selected>Sélectionnez un état</option>
+          <option *ngFor="let etat of etatAppareilOptions" [value]="etat">
+            {{ etat }}
+          </option>
+        </select>
+        <div *ngIf="AppareilForm.get('etatAppareil')?.invalid && AppareilForm.get('etatAppareil')?.touched" class="alert alert-danger mt-1">
+          <p *ngIf="AppareilForm.get('etatAppareil')?.hasError('required')">
+            L'état est obligatoire
+          </p>
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label>Marque</label>
+        <input type="text" class="form-control" placeholder="Marque de l'appareil" formControlName="marque">
+        <div *ngIf="AppareilForm.controls['marque']?.invalid && AppareilForm.controls['marque']?.touched" class="alert alert-danger mt-1">
+          <p *ngIf="AppareilForm.controls['marque']?.hasError('required')">La marque est obligatoire</p>
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label>Description</label>
+        <input type="text" class="form-control" placeholder="Description de l'appareil" formControlName="description">
+        <div *ngIf="AppareilForm.controls['description']?.invalid && AppareilForm.controls['description']?.touched" class="alert alert-danger mt-1">
+          <p *ngIf="AppareilForm.controls['description']?.hasError('required')">La description est obligatoire</p>
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label>Image (URL)</label>
+        <input type="text" class="form-control" placeholder="URL de l'image" formControlName="imageurl">
+        <div *ngIf="AppareilForm.controls['imageurl']?.invalid && AppareilForm.controls['imageurl']?.touched" class="alert alert-danger mt-1">
+          <p>L'URL de l'image est obligatoire</p>
+          <p *ngIf="AppareilForm.controls['imageurl']?.hasError('pattern')">Veuillez entrer une URL valide</p>
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label>Prix</label>
+        <input type="number" class="form-control" placeholder="Prix de l'appareil" formControlName="prix">
+        <div *ngIf="AppareilForm.controls['prix']?.invalid && AppareilForm.controls['prix']?.touched" class="alert alert-danger mt-1">
+          <p *ngIf="AppareilForm.controls['prix']?.hasError('required')">Le prix est obligatoire</p>
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label>Catégorie</label>
+        <select class="form-control" formControlName="categorie">
+          <option value="Electronique">Electronique</option>
+          <option value="Telephonique">Téléphonique</option>
+        </select>
+        <div *ngIf="AppareilForm.controls['categorie']?.invalid && AppareilForm.controls['categorie']?.touched" class="alert alert-danger mt-1">
+          <p>La catégorie est obligatoire</p>
+        </div>
+      </div>
+
+      <button class="btn btn-success mt-3" type="submit" [disabled]="AppareilForm.invalid" (click)="save()">Enregistrer</button>
+    </form>
+  </div>
+</div>
+</main>

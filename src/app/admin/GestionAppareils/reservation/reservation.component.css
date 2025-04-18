@@ -1,0 +1,65 @@
+.card-stack {
+  display: flex; /* Display cards in a row */
+  justify-content: space-evenly; /* Evenly space the cards */
+  flex-wrap: wrap; /* Allow cards to wrap on smaller screens */
+  gap: 20px; /* Space between the cards */
+  padding: 20px;
+}
+
+.card {
+  position: relative;
+  width: 18rem; /* Fixed width for all cards */
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  border-radius: 8px; /* Round corners for a smoother look */
+  overflow: hidden; /* Ensure no overflow from images */
+  background-color: #e6f4e6; /* Light pastel green background */
+}
+
+.card-img-top {
+  width: 100%;
+  height: 200px; /* Fixed height to maintain a uniform look */
+  object-fit: cover; /* Ensures the image covers the area without distortion */
+  border-top-left-radius: 8px; /* Rounded corners on top */
+  border-top-right-radius: 8px; /* Rounded corners on top */
+}
+
+.card-body {
+  padding: 1rem;
+  background-color: #f0f9f0; /* Slightly lighter pastel green */
+}
+
+.card-body h5 {
+  font-size: 1.2rem;
+  margin-bottom: 0.5rem;
+  color: #3b6f3b; /* Darker green for contrast */
+}
+
+.card-body p {
+  font-size: 1rem;
+  color: #4d7a4d; /* Muted green text */
+}
+
+button {
+  background-color: #8fc18f; /* Pastel green button */
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: #6ea86e; /* Slightly darker green on hover */
+}
+
+.card:hover {
+  transform: translateY(-5px); /* Slight lift effect on hover */
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15); /* Larger shadow on hover */
+}
+.content-decale {
+  margin-left: 8.33333%; /* Décale le contenu de la largeur de la sidebar (1/12) */
+  padding-top: 20px; /* Pour donner un peu de marge en haut */
+}

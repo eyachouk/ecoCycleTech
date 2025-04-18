@@ -1,0 +1,6 @@
+<h2>Paiement réussi ✅</h2>
+
+<div *ngIf="qrCodeUrl">
+  <p>Scannez ce QR Code pour obtenir votre facture :</p>
+  <ngx-qrcode [qrc-value]="qrCodeUrl" [qrc-size]="256"></ngx-qrcode>
+</div>

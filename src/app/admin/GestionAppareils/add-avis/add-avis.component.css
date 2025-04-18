@@ -1,0 +1,102 @@
+.avis-container {
+  max-width: 700px;
+  margin: 20px auto;
+  padding: 20px;
+  border-radius: 10px;
+  background-color: #f3f3f3;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.avis-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-bottom: 30px;
+}
+
+.avis-form textarea,
+.avis-form select,
+.avis-form input,
+.avis-form button {
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+.btn-submit {
+  background-color: #28a745;
+  color: white;
+  font-weight: bold;
+  border: none;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.btn-submit:hover {
+  background-color: #218838;
+}
+
+.avis-list h3 {
+  margin-bottom: 10px;
+}
+
+.avis-card {
+  background-color: white;
+  padding: 15px;
+  margin-bottom: 15px;
+  border-left: 5px solid #28a745;
+  border-radius: 5px;
+  position: relative;
+}
+
+.avis-contenu {
+  font-style: italic;
+  font-size: 16px;
+  margin-bottom: 5px;
+}
+
+.avis-user {
+  color: #555;
+  font-size: 14px;
+}
+
+.btn-edit, .btn-delete {
+  margin-right: 10px;
+  padding: 5px 10px;
+  border-radius: 5px;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-edit {
+  background-color: #ffc107;
+  color: #000;
+}
+
+.btn-edit:hover {
+  background-color: #e0a800;
+}
+
+.btn-delete {
+  background-color: #dc3545;
+  color: white;
+}
+
+.btn-delete:hover {
+  background-color: #c82333;
+}
+/* add-avis.component.css (Angular) */
+
+.stars {
+  display: flex;
+}
+
+.stars span {
+  font-size: 30px;
+  cursor: pointer;
+  color: gray;
+}
+
+.stars span.selected {
+  color: gold;
+}

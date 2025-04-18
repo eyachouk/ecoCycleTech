@@ -1,0 +1,91 @@
+<main class="col-md-10 offset-md-2 p-4" style="margin-left: 16.66667%; padding-top: 20px;">
+
+<div class="max-w-2xl mx-auto p-4">
+  <div class="card shadow-lg">
+    <div class="card-header bg-primary text-white">
+      Nouvelle réservation
+    </div>
+
+    <div class="card-body p-4">
+      <!-- Message d'erreur -->
+      <div *ngIf="errorMessage" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+        {{ errorMessage }}
+      </div>
+
+      <form [formGroup]="reservationForm" (ngSubmit)="onSubmit()">
+        <!-- Champ Client -->
+        <div class="mb-4">
+          <label class="block text-gray-700 mb-2">Nom du client</label>
+          <input type="text" formControlName="client" class="w-full p-2 border rounded">
+          <div *ngIf="reservationForm.get('client')?.invalid && reservationForm.get('client')?.touched"
+               class="text-red-500 text-sm mt-1">
+            Le nom du client est requis (3 caractères minimum)
+          </div>
+        </div>
+
+        <!-- Champ Date -->
+        <div class="mb-4">
+          <label class="block text-gray-700 mb-2">Date</label>
+          <input type="date" formControlName="date" class="w-full p-2 border rounded">
+          <div *ngIf="reservationForm.get('date')?.invalid && reservationForm.get('date')?.touched"
+               class="text-red-500 text-sm mt-1">
+            Une date valide est requise
+          </div>
+        </div>
+
+        <!-- Liste des appareils -->
+        <div class="mb-6">
+          <h3 class="text-xl font-semibold mb-3">Appareils sélectionnés</h3>
+          <div *ngIf="appareilsArray.length === 0" class="text-gray-500">
+            Aucun appareil sélectionné
+          </div>
+          <div *ngFor="let item of appareilsArray.controls; let i = index"
+               class="border-b py-2 flex justify-between items-center">
+               <div *ngFor="let appareil of appareilsInCart">
+                <div class="appareil-info">
+                  <img [src]="appareil.imageurl" [alt]="appareil.nom" class="appareil-image">
+                  <div>
+                    <h3>{{ appareil.nom }}</h3>
+                    <p>{{ appareil.prix | currency }}</p>
+                  </div>
+                </div>
+              </div>
+
+            <button type="button" (click)="onRemoveAppareil(i)" class="text-red-500">
+              Supprimer
+            </button>
+          </div>
+        </div>
+
+        <!-- Sélection d'appareil -->
+        <div class="mb-4">
+          <label class="block text-gray-700 mb-2">Ajouter un appareil</label>
+          <select formControlName="selectedAppareil" class="w-full p-2 border rounded">
+            <option [ngValue]="null">-- Sélectionnez un appareil --</option>
+            <option *ngFor="let appareil of allAppareils" [ngValue]="appareil.idAppareil">
+              {{ appareil.nom }} ({{ appareil.prix | currency:'TND' }})
+            </option>
+          </select>
+          <button type="button" (click)="onAddAppareil()"
+                  class="mt-2 bg-blue-500 text-white p-2 rounded">
+            Ajouter
+          </button>
+        </div>
+
+        <!-- Total -->
+        <div class="mb-6">
+          <p class="font-bold">Total: {{ reservationForm.get('total')?.value | currency:'TND' }}</p>
+        </div>
+
+        <!-- Bouton de soumission -->
+        <button type="submit"
+                [disabled]="isLoading || reservationForm.invalid"
+                class="w-full bg-green-500 text-white p-3 rounded hover:bg-green-600">
+          <span *ngIf="!isLoading">Confirmer la réservation</span>
+          <span *ngIf="isLoading">Enregistrement en cours...</span>
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+</main>

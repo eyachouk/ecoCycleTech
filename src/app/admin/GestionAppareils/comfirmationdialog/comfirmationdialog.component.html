@@ -1,0 +1,22 @@
+<h2 mat-dialog-title>{{ data.title }}</h2>
+<mat-dialog-content>
+  <div class="dialog-content">
+    <p>{{ data.message }}</p>
+    <div class="appareil-info" *ngIf="data.appareil">
+      <img [src]="data.appareil.imageurl" [alt]="data.appareil.nom" class="appareil-image">
+      <div>
+        <h3>{{ data.appareil.nom }}</h3>
+        <p>{{ data.appareil.prix | currency }}</p>
+      </div>
+    </div>
+  </div>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button [mat-dialog-close]="false">Cancel</button>
+  <button mat-raised-button
+          [color]="data.action === 'reserve' ? 'primary' : 'accent'"
+          [mat-dialog-close]="true"
+          cdkFocusInitial>
+    {{ data.action === 'reserve' ? 'Confirm Reservation' : 'Add to Cart' }}
+  </button>
+</mat-dialog-actions>

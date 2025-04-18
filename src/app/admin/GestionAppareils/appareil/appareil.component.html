@@ -1,0 +1,104 @@
+<main class="col-md-10 offset-md-2 p-4" style="margin-left: 16.66667%; padding-top: 20px;">
+  <!-- Input for Recommendations -->
+  <h1>Liste des Appareils</h1>
+  <input [(ngModel)]="query" placeholder="Enter your preference" />
+  <button (click)="getRecommendations()">Get Recommendations</button>
+
+  <!-- Recommendations Section -->
+  <div *ngIf="showRecommendations">
+    <h2>Recommendations</h2>
+    <ul>
+      <li *ngFor="let rec of recommendations">{{ rec.name }} - Score: {{ rec.score }}</li>
+    </ul>
+  </div>
+
+  <!-- Full Appareils List -->
+  <div *ngIf="!showRecommendations">
+    <h2>Tous les Appareils</h2>
+    <!-- Add Button: only visible for admin -->
+    <button *ngIf="userRole === 0" [routerLink]="['/admin/AddAppareil']" class="btn btn-primary mb-3">
+      <i class="fas fa-plus me-1"></i> Ajouter un Appareil
+    </button>
+
+    <!-- Sorting and Filter Controls -->
+    <div class="d-flex justify-content-between mb-3">
+      <!-- Sorting Button -->
+      <button (click)="toggleSort()" class="btn btn-outline-secondary">
+        <i class="fas" [ngClass]="isAscending ? 'fa-sort-alpha-down' : 'fa-sort-alpha-up'"></i>
+        Trier par nom
+      </button>
+    </div>
+
+    <!-- Cards Grid -->
+    <div class="row row-cols-1 row-cols-md-3 row-cols-lg-4 g-4">
+      <div *ngFor="let appareil of sortedAppareils" class="col">
+        <div class="card h-100 shadow-sm">
+          <img [src]="appareil.imageurl || 'assets/default-appareil.jpg'"
+               [alt]="appareil.nom"
+               class="card-img-top"
+               style="height: 200px; object-fit: cover;">
+
+          <div class="card-body">
+            <h5 class="card-title">{{ appareil.nom }}</h5>
+
+            <div class="mb-2">
+              <span class="badge bg-info text-dark me-2">{{ appareil.categorie }}</span>
+              <span class="badge bg-secondary">{{ appareil.marque }}</span>
+            </div>
+
+            <ul class="list-unstyled">
+              <li><strong>État:</strong> {{ appareil.etatAppareil }}</li>
+              <li><strong>Prix:</strong> {{ appareil.prix | number:'1.3-3' }} dt</li>
+              <li><strong>Description:</strong> {{ appareil.description }}</li>
+            </ul>
+
+
+
+            <!-- Ratings -->
+            <div class="rating-container">
+              <strong>Note Moyenne:</strong>
+              <div class="text-warning">
+                <!-- Full Stars -->
+                <ng-container *ngFor="let star of getFullStars(averageRatings[appareil.idAppareil])">
+                  <i class="fas fa-star"></i>
+                </ng-container>
+                <!-- Half Star -->
+                <ng-container *ngIf="hasHalfStar(averageRatings[appareil.idAppareil])">
+                  <i class="fas fa-star-half-alt"></i>
+                </ng-container>
+                <!-- Empty Stars -->
+                <ng-container *ngFor="let star of getEmptyStars(averageRatings[appareil.idAppareil])">
+                  <i class="far fa-star"></i>
+                </ng-container>
+                <!-- Average Rating -->
+                <span class="text-muted ms-2">({{ averageRatings[appareil.idAppareil] | number:'1.1-1' }})</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Footer Actions -->
+          <div class="card-footer bg-transparent d-flex justify-content-between align-items-center">
+            <!-- Reserve Button -->
+            <button (click)="onReserve(appareil)" class="btn btn-warning btn-sm">
+              <i class="fas fa-calendar-check me-1"></i> Réserver
+            </button>
+
+            <!-- Admin Actions -->
+            <div *ngIf="isAdmin" class="admin-actions">
+              <!-- Edit Button -->
+              <button [routerLink]="['/admin/AddAppareil', appareil.idAppareil]"
+                      class="btn btn-sm btn-outline-primary me-1">
+                <i class="fas fa-edit"></i>
+              </button>
+              <!-- Delete Button -->
+              <button (click)="onDelete(appareil.idAppareil)"
+                      class="btn btn-sm btn-outline-danger">
+                <i class="fas fa-trash-alt"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
