@@ -11,7 +11,7 @@ import java.util.List;
 @Service
 public class ReservationServiceImpl implements IReservationService {
     @Autowired
-    private  IReservationRepository reservationRepository; // Use final for better immutability
+    private  IReservationRepository reservationRepository;
     @Override
     public List<Reservation> getAllReservations() {
         return reservationRepository.findAll();

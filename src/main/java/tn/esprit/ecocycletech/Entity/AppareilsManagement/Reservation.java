@@ -29,4 +29,52 @@ public class Reservation implements Serializable {
     private User user;
     @OneToMany(cascade = CascadeType.ALL,mappedBy = "reservation")
     private List<Appareil> panier;
+
+    public int getIdReservation() {
+        return idReservation;
+    }
+
+    public void setIdReservation(int idReservation) {
+        this.idReservation = idReservation;
+    }
+
+    public String getStatut() {
+        return statut;
+    }
+
+    public void setStatut(String statut) {
+        this.statut = statut;
+    }
+
+    public double getTotal() {
+        return total;
+    }
+
+    public void setTotal(double total) {
+        this.total = total;
+    }
+
+    public Date getDate() {
+        return date;
+    }
+
+    public void setDate(Date date) {
+        this.date = date;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public List<Appareil> getPanier() {
+        return panier;
+    }
+
+    public void setPanier(List<Appareil> panier) {
+        this.panier = panier;
+    }
 }

@@ -15,7 +15,7 @@ public class ReservationController {
 
     @Autowired
     private IReservationService reservationService;
-    @GetMapping("/AllReservations")
+    @GetMapping
     public List<Reservation> getAllReservations() {
         return reservationService.getAllReservations();
     }
@@ -30,14 +30,13 @@ public class ReservationController {
         }
     }
 
-    @PostMapping("/createReservation")
+    @PostMapping
     public ResponseEntity<Reservation> createReservation(@RequestBody Reservation reservation) {
         Reservation createdReservation = reservationService.saveReservation(reservation);
         return ResponseEntity.ok(createdReservation);
     }
 
-    // Supprimer une réservation par son ID
-    @DeleteMapping("/deleteReservation/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteReservation(@PathVariable int id) {
         Reservation reservation = reservationService.getReservationById(id);
         if (reservation != null) {
@@ -48,7 +47,7 @@ public class ReservationController {
         }
     }
 
-    @PutMapping("/updateReservation/{id}")
+    @PutMapping("/{id}")
     public ResponseEntity<Reservation> updateReservation(@PathVariable int id, @RequestBody Reservation reservation) {
         Reservation existingReservation = reservationService.getReservationById(id);
         if (existingReservation != null) {

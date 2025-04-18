@@ -23,12 +23,10 @@ public class Appareil implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int idAppareil;
-    @NotNull
     private String nom;
     private String categorie;
-    private EtatAppareil etatAppareil;//kenet esmha type walet esmha etat
+    private EtatAppareil etatAppareil;
     private String marque;
-    private int quantite;
     private double prix;
     private String description;
     private String imageurl;
@@ -79,13 +77,7 @@ public class Appareil implements Serializable {
         this.marque = marque;
     }
 
-    public int getQuantite() {
-        return quantite;
-    }
 
-    public void setQuantite(int quantite) {
-        this.quantite = quantite;
-    }
 
     public double getPrix() {
         return prix;

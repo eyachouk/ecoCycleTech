@@ -1,6 +1,10 @@
 package tn.esprit.ecocycletech.Entity.Enumerations;
 
 public enum EtatAppareil {
-    NOUVEAU ,
+    NEUF,
+    UTILISE,
+    REPARABLE,
+    HS,
+    OCCASION,
     RECONDITIONNE
 }
