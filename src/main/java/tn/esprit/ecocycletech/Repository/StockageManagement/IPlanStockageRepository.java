@@ -7,5 +7,5 @@ import tn.esprit.ecocycletech.Entity.StockageManagement.PlanStockage;
 
 @Repository
 public interface IPlanStockageRepository extends JpaRepository<PlanStockage,Long> {
-    public PlanStockage findByIdPlan(Long id);
+    public PlanStockage findByIdPlan(long id);
 }

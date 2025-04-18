@@ -1,5 +1,6 @@
 package tn.esprit.ecocycletech.Entity.StockageManagement;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -26,6 +27,7 @@ public class Fichier implements Serializable {
     private Date dateUpload;
     private String urlStockage;
     @ManyToOne
+    @JsonBackReference
     private EspaceStockage espace;
     private TypeFichier type;
 

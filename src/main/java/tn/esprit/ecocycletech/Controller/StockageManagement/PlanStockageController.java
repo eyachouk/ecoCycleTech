@@ -37,9 +37,9 @@ public class PlanStockageController {
 
 
     @PutMapping("/updatePlan/{id}")
-    public PlanStockage updatePlan(@PathVariable("id") long id, @RequestBody PlanStockage plan) {
+    public PlanStockage updatePlan(@PathVariable("id") long id,@RequestBody PlanStockage plan) {
 
-        return planStockageService.updatePlanStockage(plan);
+        return planStockageService.updatePlanStockage(id,plan);
     }
 
     @DeleteMapping("/deletePlan/{id}")

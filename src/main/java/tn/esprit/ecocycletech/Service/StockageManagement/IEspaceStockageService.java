@@ -10,4 +10,9 @@ public interface IEspaceStockageService {
     EspaceStockage addEspaceStockage (EspaceStockage e);
     EspaceStockage updateEspaceStockage (EspaceStockage e);
     void DeleteEspaceStockage(Long id);
+
+    EspaceStockage blockEspaceStockage (EspaceStockage e);
+    EspaceStockage unblockEspaceStockage (EspaceStockage e);
+
+    List<EspaceStockage> GetEspaceStockageByPlan(long id);
 }

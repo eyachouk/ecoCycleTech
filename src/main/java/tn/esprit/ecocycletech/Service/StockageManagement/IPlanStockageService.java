@@ -8,6 +8,6 @@ public interface IPlanStockageService {
     public List<PlanStockage> GetAllPlansStockage();
     public PlanStockage GetPlanStockage(Long id);
     PlanStockage addPlanStockage (PlanStockage e);
-    PlanStockage updatePlanStockage (PlanStockage e);
+    PlanStockage updatePlanStockage (long id, PlanStockage e);
     void DeletePlanStockage(Long id);
 }

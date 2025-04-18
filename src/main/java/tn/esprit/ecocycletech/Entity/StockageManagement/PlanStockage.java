@@ -1,5 +1,6 @@
 package tn.esprit.ecocycletech.Entity.StockageManagement;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -24,6 +25,7 @@ public class PlanStockage implements Serializable {
     private BigDecimal tailleMax;
     private double prix;
     @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.REMOVE, CascadeType.MERGE},mappedBy = "planStockage")
+    @JsonManagedReference
     private List<EspaceStockage> espaces;
 
 

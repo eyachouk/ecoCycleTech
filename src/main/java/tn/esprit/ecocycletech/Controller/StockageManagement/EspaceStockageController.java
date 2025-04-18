@@ -30,20 +30,38 @@ public class EspaceStockageController {
     }
 
 
+    @GetMapping("/getEspacesByPlan/{id}")
+    public List<EspaceStockage> GetEspacesByPlan(@PathVariable("id") long id) {
+        return espaceStockageService.GetEspaceStockageByPlan(id);
+    }
+
     @PostMapping("/addEspace")
     public EspaceStockage addEspace(@RequestBody EspaceStockage e) {
         return espaceStockageService.addEspaceStockage(e);
     }
 
 
-    @PutMapping("/updateFichier/{id}")
+    @PutMapping("/updateEspace/{id}")
     public EspaceStockage updateEspace(@PathVariable("id") long id, @RequestBody EspaceStockage espace) {
 
         return espaceStockageService.updateEspaceStockage(espace);
     }
 
-    @DeleteMapping("/deleteFichier/{id}")
-    public void DeleteFichier(@PathVariable("id") long id) {
+    @DeleteMapping("/deleteEspace/{id}")
+    public void DeleteEspace(@PathVariable("id") long id) {
         espaceStockageService.DeleteEspaceStockage(id);
+    }
+
+
+    @PutMapping("/blockEspace/{id}")
+    public EspaceStockage blockEspace(@PathVariable("id") long id) {
+
+        return espaceStockageService.blockEspaceStockage(espaceStockageService.GetEspaceStockage(id));
+    }
+
+    @PutMapping("/unblockEspace/{id}")
+    public EspaceStockage unblockEspace(@PathVariable("id") long id) {
+
+        return espaceStockageService.unblockEspaceStockage(espaceStockageService.GetEspaceStockage(id));
     }
 }

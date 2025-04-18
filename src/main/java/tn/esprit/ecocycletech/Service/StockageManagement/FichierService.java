@@ -36,7 +36,7 @@ public class FichierService implements IFichierService {
     }
     @Override
     public Fichier updateFichier(Fichier f) {
-        if (fichierRepository.existsById(f.getIdFichier())) {
+        if (fichierRepository.findByIdFichier(f.getIdFichier()) != null) {
         return fichierRepository.save(f);}
         return null;
     }

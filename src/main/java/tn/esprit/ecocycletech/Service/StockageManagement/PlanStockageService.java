@@ -29,10 +29,17 @@ public class PlanStockageService implements IPlanStockageService {
     }
 
     @Override
-    public PlanStockage updatePlanStockage(PlanStockage e) {
-        if (planStockageRepository.existsById(e.getIdPlan())) {
-            return planStockageRepository.save(e);
+    public PlanStockage updatePlanStockage(long id, PlanStockage e) {
+        PlanStockage existingPlan = planStockageRepository.findByIdPlan(id);
+        if (existingPlan != null) {
+            System.out.println("Plan found !! Updating ...");
+            existingPlan.setTitre(e.getTitre());
+            existingPlan.setTailleMax(e.getTailleMax());
+            existingPlan.setPrix(e.getPrix());
+            return planStockageRepository.save(existingPlan);
         }
+        else
+            System.out.println("No Plan found !!");
         return null;
     }
 
