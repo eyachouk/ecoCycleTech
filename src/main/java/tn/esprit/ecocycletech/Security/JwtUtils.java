@@ -70,4 +70,18 @@ public class JwtUtils {
         final String username = extractUsername(token);
         return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }
+    public String generateTokenForOAuth2User(User user) {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("id", user.getIdUser());
+        claims.put("email", user.getEmail());
+        claims.put("role", user.getRole().name());
+
+        return Jwts.builder()
+                .setClaims(claims)
+                .setSubject(user.getEmail())
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10)) // 10 hours
+                .signWith(getSigningKey(), SignatureAlgorithm.HS256)
+                .compact();
+    }
 }

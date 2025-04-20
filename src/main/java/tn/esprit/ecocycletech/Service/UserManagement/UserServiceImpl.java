@@ -26,6 +26,8 @@ import tn.esprit.ecocycletech.Security.JwtUtils;
 
 import java.time.ZoneId;
 import java.util.Date;
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -130,6 +132,84 @@ public class UserServiceImpl implements IUserService{
         tokenRepository.delete(verificationToken);
 
         return true;
+    }
+
+    @Override
+    public User findOrCreateGoogleUser(String email, String name, boolean emailVerified) {
+        if (!emailVerified) {
+            throw new RuntimeException("Google email not verified");
+        }
+
+        // Try to find existing user
+        Optional<User> existingUser = userRepository.findByEmail(email);
+
+        if (existingUser.isPresent()) {
+            User user = existingUser.get();
+
+            // Update user details if they've changed in Google
+            if (!user.getNom().equals(name)) {
+                user.setNom(name);
+                userRepository.save(user);
+            }
+
+            return user;
+        } else {
+            // Create new user
+            User newUser = new User();
+            newUser.setEmail(email);
+            newUser.setNom(name);
+            newUser.setActive(true);
+
+            // Set a random password (won't be used for Google login)
+            newUser.setPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
+
+            // Set default role (you might want to customize this)
+            newUser.setRole(UserRole.USER);
+
+            // Mark as Google-authenticated user
+            //  newUser.setAuthProvider(AuthProvider.GOOGLE);
+
+            return userRepository.save(newUser);
+        }
+    }
+
+    @Override
+    public User findOrCreateFacebookUser(String email, String name, boolean emailVerified) {
+        if (email == null || email.isEmpty()) {
+            throw new RuntimeException("Facebook email is required");
+        }
+
+        // Try to find existing user
+        Optional<User> existingUser = userRepository.findByEmail(email);
+
+        if (existingUser.isPresent()) {
+            User user = existingUser.get();
+
+            // Update user details if they've changed
+            if (!user.getNom().equals(name)) {
+                user.setNom(name);
+                userRepository.save(user);
+            }
+
+            return user;
+        } else {
+            // Create new user
+            User newUser = new User();
+            newUser.setEmail(email);
+            newUser.setNom(name);
+            newUser.setPrenom(""); // You might want to parse the full name
+            newUser.setUsername(email.split("@")[0]); // Use part of email as username
+            newUser.setActive(true);
+            newUser.setEmailVerified(emailVerified);
+
+            // Set a random password (won't be used for Facebook login)
+            newUser.setPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
+
+            // Set default role
+            newUser.setRole(UserRole.USER);
+
+            return userRepository.save(newUser);
+        }
     }
 
     // You might want to update the login method to check if email is verified

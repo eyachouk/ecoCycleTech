@@ -11,4 +11,6 @@ public interface IUserService {
      LoginResponse login(LoginRequest request);
     boolean verifyEmail(String token);
 
-    }
+    User findOrCreateGoogleUser(String email, String name, boolean emailVerified);
+    User findOrCreateFacebookUser(String email, String name, boolean emailVerified);
+}
