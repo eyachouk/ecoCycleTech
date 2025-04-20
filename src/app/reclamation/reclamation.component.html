@@ -1,0 +1,36 @@
+
+<div class="container">
+  <h2>Liste des Réclamations</h2>
+
+  <!-- If no reclamations, show a message -->
+  <div *ngIf="reclamations.length === 0" class="alert">
+    Aucune réclamation trouvée.
+  </div>
+
+  <!-- Loop over all Reclamations -->
+  <div class="row">
+    <div *ngFor="let rec of reclamations" class="col-md-4">
+      <div class="card">
+        <div class="card" [class.urgent]="isUrgentReclamation(rec) || rec.etatReclamation === 'URGENT'">
+          <h5 class="card-title" [ngClass]="getUrgentClass(rec)">
+            {{ rec.titreReclamation }}
+            
+          </h5>
+        <p class="card-text"><strong>Description:</strong> {{ rec.descriptionReclamation }}</p>
+        <p class="card-text"><strong>Date:</strong> {{ rec.dateReclamation | date: 'mediumDate' }}</p>
+        <p>
+          <strong>État:</strong>
+          <span [ngClass]="getEtatClass(rec.etatReclamation)">
+            {{ rec.etatReclamation }}
+          </span>
+        </p>
+        <div class="card-btn-container">
+          <button *ngIf="rec.idReclamation" (click)="editReclamation(rec.idReclamation)" class="btn btn-edit">Editer</button>
+          <button *ngIf="rec.idReclamation" (click)="deleteReclamation(rec.idReclamation)" class="btn btn-delete">
+            Supprimer
+          </button>
+          </div>
+      </div>
+    </div>
+  </div>
+</div>

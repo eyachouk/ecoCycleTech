@@ -1,0 +1,124 @@
+/* General Container */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* Title Styles */
+h2 {
+  text-align: center;
+  color: #4e73df;
+  margin-bottom: 30px;
+}
+
+/* Reclamation Cards */
+.card {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Hover effect for card */
+.card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Card Header */
+.card-title {
+  font-size: 1.5rem;
+  color: #333;
+  margin-bottom: 10px;
+  font-weight: bold;
+}
+
+/* Reclamation Description */
+.card-text {
+  font-size: 1rem;
+  color: #555;
+  margin-bottom: 10px;
+}
+
+/* Button styles (Edit/Delete) */
+.card-btn-container {
+  display: flex;
+  justify-content: space-between;
+}
+
+.card-btn-container .btn {
+  padding: 8px 12px;
+  font-size: 0.9rem;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.card-btn-container .btn-edit {
+  background-color: #4e73df;
+  color: white;
+  transition: background-color 0.2s ease;
+}
+
+.card-btn-container .btn-edit:hover {
+  background-color: #2e59d9;
+}
+
+.card-btn-container .btn-delete {
+  background-color: #e74a3b;
+  color: white;
+  transition: background-color 0.2s ease;
+}
+
+.card-btn-container .btn-delete:hover {
+  background-color: #c0392b;
+}
+
+/* Responsive Design (Grid Layout) */
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+}
+
+.col-md-4 {
+  flex: 1 1 30%;
+  max-width: 30%;
+  box-sizing: border-box;
+}
+
+.col-md-4 .card {
+  margin-bottom: 20px;
+}
+
+/* If there's no data, show a friendly message */
+.alert {
+  text-align: center;
+  padding: 10px;
+  background-color: #f8d7da;
+  color: #721c24;
+  border-radius: 5px;
+  font-size: 1rem;
+}
+
+.urgent {
+  border-left: 4px solid #d32f2f;
+  background-color: #ffebee;
+}
+
+.urgent-text {
+  color: #d32f2f;
+  font-weight: bold;
+}
+
+.urgent-badge {
+  background-color: #d32f2f;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.8em;
+  margin-left: 8px;
+}
