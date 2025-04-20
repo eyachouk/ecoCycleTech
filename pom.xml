@@ -47,7 +47,17 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
+<<<<<<< HEAD
             <optional>true</optional>
+=======
+            <version>1.18.22</version>  <!-- Vérifie si la version est la plus récente -->
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-boot-starter</artifactId>
+            <version>3.0.0</version>
+>>>>>>> e88a1f3 (update)
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
