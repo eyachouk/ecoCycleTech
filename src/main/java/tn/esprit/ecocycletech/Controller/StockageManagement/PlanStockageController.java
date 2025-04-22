@@ -30,7 +30,7 @@ public class PlanStockageController {
     }
 
 
-    @PostMapping("/addPlan")
+    @PostMapping(value = "/addPlan", consumes = "application/json")
     public PlanStockage addPlan(@RequestBody PlanStockage p) {
         return planStockageService.addPlanStockage(p);
     }

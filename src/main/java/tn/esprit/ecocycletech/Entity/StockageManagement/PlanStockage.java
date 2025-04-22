@@ -1,5 +1,7 @@
 package tn.esprit.ecocycletech.Entity.StockageManagement;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -12,7 +14,6 @@ import java.math.BigDecimal;
 import java.util.List;
 
 @Entity
-
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
@@ -24,9 +25,11 @@ public class PlanStockage implements Serializable {
     private String titre;
     private BigDecimal tailleMax;
     private double prix;
-    @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.REMOVE, CascadeType.MERGE},mappedBy = "planStockage")
-    @JsonManagedReference
-    private List<EspaceStockage> espaces;
+    private boolean premium;
+
+    @OneToMany(mappedBy = "planStockage", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<Subscription> subscriptions;
 
 
     public long getIdPlan() {
@@ -61,11 +64,21 @@ public class PlanStockage implements Serializable {
         this.prix = prix;
     }
 
-    public List<EspaceStockage> getEspaces() {
-        return espaces;
+    public List<Subscription> getSubscriptions() {
+        return subscriptions;
     }
 
-    public void setEspaces(List<EspaceStockage> espaces) {
-        this.espaces = espaces;
+
+
+    public void setSubscriptions(List<Subscription> subscriptions) {
+        this.subscriptions = subscriptions;
+    }
+
+    public boolean isPremium() {
+        return premium;
+    }
+
+    public void setPremium(boolean premium) {
+        this.premium = premium;
     }
 }

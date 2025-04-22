@@ -1,5 +1,7 @@
 package tn.esprit.ecocycletech.Entity.UserManagement;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import tn.esprit.ecocycletech.Entity.AppareilsManagement.Avis;
 import tn.esprit.ecocycletech.Entity.AppareilsManagement.Reservation;
 import tn.esprit.ecocycletech.Entity.CommandesManagement.CommandeReparation;
@@ -13,6 +15,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import tn.esprit.ecocycletech.Entity.StockageManagement.EspaceStockage;
+import tn.esprit.ecocycletech.Entity.StockageManagement.Subscription;
 
 import java.util.Date;
 import java.util.List;
@@ -49,6 +52,153 @@ public class User {
     private List<Avis> avis;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
     private List<Reservation> reservations;
-    @OneToOne
-    private EspaceStockage espace;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<Subscription> subscriptions;
+
+
+    public int getIdUser() {
+        return idUser;
+    }
+
+    public void setIdUser(int idUser) {
+        this.idUser = idUser;
+    }
+
+    public String getNom() {
+        return nom;
+    }
+
+    public void setNom(String nom) {
+        this.nom = nom;
+    }
+
+    public String getPrenom() {
+        return prenom;
+    }
+
+    public void setPrenom(String prenom) {
+        this.prenom = prenom;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public long getNumTelephone() {
+        return numTelephone;
+    }
+
+    public void setNumTelephone(long numTelephone) {
+        this.numTelephone = numTelephone;
+    }
+
+    public Date getDateNaissance() {
+        return dateNaissance;
+    }
+
+    public void setDateNaissance(Date dateNaissance) {
+        this.dateNaissance = dateNaissance;
+    }
+
+    public String getAdresse() {
+        return adresse;
+    }
+
+    public void setAdresse(String adresse) {
+        this.adresse = adresse;
+    }
+
+    public int getRole() {
+        return role;
+    }
+
+    public void setRole(int role) {
+        this.role = role;
+    }
+
+    public String getPhotoDeProfil() {
+        return photoDeProfil;
+    }
+
+    public void setPhotoDeProfil(String photoDeProfil) {
+        this.photoDeProfil = photoDeProfil;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public List<Reclamation> getReclamationList() {
+        return reclamationList;
+    }
+
+    public void setReclamationList(List<Reclamation> reclamationList) {
+        this.reclamationList = reclamationList;
+    }
+
+    public List<CommandeReparation> getCommandeReparationList() {
+        return commandeReparationList;
+    }
+
+    public void setCommandeReparationList(List<CommandeReparation> commandeReparationList) {
+        this.commandeReparationList = commandeReparationList;
+    }
+
+    public List<TicketEvenement> getTicketEvenementList() {
+        return ticketEvenementList;
+    }
+
+    public void setTicketEvenementList(List<TicketEvenement> ticketEvenementList) {
+        this.ticketEvenementList = ticketEvenementList;
+    }
+
+    public List<DemandeRecyclage> getDemandeRecyclageList() {
+        return demandeRecyclageList;
+    }
+
+    public void setDemandeRecyclageList(List<DemandeRecyclage> demandeRecyclageList) {
+        this.demandeRecyclageList = demandeRecyclageList;
+    }
+
+    public List<Avis> getAvis() {
+        return avis;
+    }
+
+    public void setAvis(List<Avis> avis) {
+        this.avis = avis;
+    }
+
+    public List<Reservation> getReservations() {
+        return reservations;
+    }
+
+    public void setReservations(List<Reservation> reservations) {
+        this.reservations = reservations;
+    }
+
+    public List<Subscription> getSubscriptions() {
+        return subscriptions;
+    }
+
+    public void setSubscriptions(List<Subscription> subscriptions) {
+        this.subscriptions = subscriptions;
+    }
 }

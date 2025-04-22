@@ -15,7 +15,6 @@ import java.util.List;
 @Repository
 public interface IEspaceStockageRepository extends JpaRepository<EspaceStockage,Long> {
     public EspaceStockage findByIdEspace(Long id);
-    public List<EspaceStockage> findByPlanStockage(PlanStockage planStockage);
 
     @Query("SELECT e FROM EspaceStockage e WHERE e.dateExpiration <= :date AND e.statut <> :statut")
     List<EspaceStockage> findByDateExpirationBeforeOrEqualAndStatutNot(@Param("date") Date date, @Param("statut") StatutEspace statut);

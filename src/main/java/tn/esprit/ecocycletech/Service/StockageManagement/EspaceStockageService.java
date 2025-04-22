@@ -6,12 +6,15 @@ import org.springframework.web.bind.annotation.PathVariable;
 import tn.esprit.ecocycletech.Entity.StockageManagement.EspaceStockage;
 import tn.esprit.ecocycletech.Entity.StockageManagement.PlanStockage;
 import tn.esprit.ecocycletech.Entity.StockageManagement.StatutEspace;
+import tn.esprit.ecocycletech.Entity.StockageManagement.Subscription;
 import tn.esprit.ecocycletech.Repository.StockageManagement.IEspaceStockageRepository;
 import tn.esprit.ecocycletech.Repository.StockageManagement.IFichierRepository;
 import tn.esprit.ecocycletech.Repository.StockageManagement.IPlanStockageRepository;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 public class EspaceStockageService implements IEspaceStockageService {
@@ -53,11 +56,18 @@ public class EspaceStockageService implements IEspaceStockageService {
 
     @Override
     public List<EspaceStockage> GetEspaceStockageByPlan(long planId) {
-        PlanStockage p = this.psRepo.findByIdPlan(planId);
+     /*   PlanStockage p = this.psRepo.findByIdPlan(planId);
+
         if (p != null) {
-            List<EspaceStockage> espaces = espaceStockageRepository.findByPlanStockage(p);
+            List<Subscription> subscriptionList= p.getSubscriptions();
+
+            List<EspaceStockage> espaces = subscriptionList.stream()
+                    .map(Subscription::getEspace)
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
+
             return espaces;
-        }
+        }*/
         return null;
     }
 

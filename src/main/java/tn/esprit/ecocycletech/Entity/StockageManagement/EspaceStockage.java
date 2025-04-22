@@ -1,6 +1,7 @@
 package tn.esprit.ecocycletech.Entity.StockageManagement;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -33,7 +34,7 @@ public class EspaceStockage implements Serializable {
 
     @Temporal(TemporalType.DATE)
     @Column(updatable = false)
-    private Date dateCreation ;
+    private Date dateCreation;
     @Temporal(TemporalType.DATE)
     private Date dateExpiration;
 
@@ -43,11 +44,11 @@ public class EspaceStockage implements Serializable {
     @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.REMOVE, CascadeType.MERGE},mappedBy = "espace")
     @JsonManagedReference
     private List<Fichier> fichiers;
+
+
     @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.REMOVE,CascadeType.MERGE},mappedBy = "espace")
-    private User user;
-    @ManyToOne
-    @JsonBackReference
-    private PlanStockage planStockage;
+    @JsonIgnore
+    private Subscription subscription;
 
 
     public long getIdEspace() {
@@ -98,21 +99,14 @@ public class EspaceStockage implements Serializable {
         this.fichiers = fichiers;
     }
 
-    public User getUser() {
-        return user;
+    public Subscription getSubscription() {
+        return subscription;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public void setSubscription(Subscription subscription) {
+        this.subscription = subscription;
     }
 
-    public PlanStockage getPlanStockage() {
-        return planStockage;
-    }
-
-    public void setPlanStockage(PlanStockage planStockage) {
-        this.planStockage = planStockage;
-    }
     public Date getDateCreation() {
         return dateCreation;
     }
