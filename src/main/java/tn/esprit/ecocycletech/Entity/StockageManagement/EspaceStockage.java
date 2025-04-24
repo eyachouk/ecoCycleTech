@@ -122,10 +122,10 @@ public class EspaceStockage implements Serializable {
         this.dateCreation = new Date(); // set to current date
 
         // Set expiration = creation + 1 year
-      /*  Calendar calendar = Calendar.getInstance();
+        Calendar calendar = Calendar.getInstance();
         calendar.setTime(this.dateCreation);
         calendar.add(Calendar.YEAR, 1); // add 1 year
-        this.dateExpiration = calendar.getTime();*/
+        this.dateExpiration = calendar.getTime();
     }
 
 

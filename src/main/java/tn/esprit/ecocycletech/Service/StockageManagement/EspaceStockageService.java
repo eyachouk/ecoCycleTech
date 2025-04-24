@@ -56,7 +56,7 @@ public class EspaceStockageService implements IEspaceStockageService {
 
     @Override
     public List<EspaceStockage> GetEspaceStockageByPlan(long planId) {
-     /*   PlanStockage p = this.psRepo.findByIdPlan(planId);
+       PlanStockage p = this.psRepo.findByIdPlan(planId);
 
         if (p != null) {
             List<Subscription> subscriptionList= p.getSubscriptions();
@@ -67,7 +67,7 @@ public class EspaceStockageService implements IEspaceStockageService {
                     .collect(Collectors.toList());
 
             return espaces;
-        }*/
+        }
         return null;
     }
 

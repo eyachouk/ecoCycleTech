@@ -22,7 +22,7 @@ public class Fichier implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long idFichier;
     private String nom;
-    private BigDecimal taille;
+    private Long taille;
     @Temporal(TemporalType.DATE)
     private Date dateUpload;
     private String urlStockage;
@@ -30,6 +30,8 @@ public class Fichier implements Serializable {
     @JsonBackReference
     private EspaceStockage espace;
     private TypeFichier type;
+    private String cloudinaryPublicId;
+
 
     public long getIdFichier() {
         return idFichier;
@@ -47,11 +49,11 @@ public class Fichier implements Serializable {
         this.nom = nom;
     }
 
-    public BigDecimal getTaille() {
+    public Long getTaille() {
         return taille;
     }
 
-    public void setTaille(BigDecimal taille) {
+    public void setTaille(Long taille) {
         this.taille = taille;
     }
 
