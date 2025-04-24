@@ -13,10 +13,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import tn.esprit.ecocycletech.DTO.LoginRequest;
-import tn.esprit.ecocycletech.DTO.LoginResponse;
-import tn.esprit.ecocycletech.DTO.MailBody;
-import tn.esprit.ecocycletech.DTO.RegisterRequest;
+import tn.esprit.ecocycletech.DTO.*;
 import tn.esprit.ecocycletech.Entity.UserManagement.User;
 import tn.esprit.ecocycletech.Entity.UserManagement.VerificationToken;
 import tn.esprit.ecocycletech.Entity.Enumerations.UserRole;
@@ -26,6 +23,7 @@ import tn.esprit.ecocycletech.Security.JwtUtils;
 
 import java.time.ZoneId;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -80,7 +78,7 @@ public class UserServiceImpl implements IUserService{
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setPhotoDeProfil(request.getPhotoDeProfil());
         // Set default values
-        user.setRole(UserRole.USER);
+        user.setRole(UserRole.ADMIN);
         user.setActive(true);
         user.setBanned(false);
         user.setEmailVerified(false); // Set email as not verified
@@ -154,11 +152,22 @@ public class UserServiceImpl implements IUserService{
 
             return user;
         } else {
+
             // Create new user
             User newUser = new User();
             newUser.setEmail(email);
             newUser.setNom(name);
+            newUser.setDateNaissance(new Date().toInstant()
+                    .atZone(ZoneId.systemDefault())
+                    .toLocalDate());
+            newUser.setAdresse("");
+            newUser.setPrenom("");
             newUser.setActive(true);
+            newUser.setUsername(email.split("@")[0]);
+            newUser.setNumTelephone(0L);
+            newUser.setEmailVerified(true);
+
+
 
             // Set a random password (won't be used for Google login)
             newUser.setPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
@@ -184,7 +193,7 @@ public class UserServiceImpl implements IUserService{
 
         if (existingUser.isPresent()) {
             User user = existingUser.get();
-
+    
             // Update user details if they've changed
             if (!user.getNom().equals(name)) {
                 user.setNom(name);
@@ -229,10 +238,11 @@ public class UserServiceImpl implements IUserService{
             throw new RuntimeException("Email not verified. Please check your email for verification link.");
         }
         */
-
+        System.out.println("*****************kbal auhenticate");
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
         );
+        System.out.println("*****************baad auhenticate");
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String jwt = jwtUtils.generateToken((UserDetails) authentication.getPrincipal());
@@ -247,4 +257,49 @@ public class UserServiceImpl implements IUserService{
                 .role(user.getRole().name())
                 .build();
     }
+    @Transactional
+    public User updateUserProfile(int userId, UserUpdateRequest request) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // Mettre à jour uniquement les champs non-null fournis dans la requête
+        if (request.getNom() != null && !request.getNom().isEmpty()) {
+            user.setNom(request.getNom());
+        }
+
+        if (request.getPrenom() != null && !request.getPrenom().isEmpty()) {
+            user.setPrenom(request.getPrenom());
+        }
+
+        if (request.getNumTelephone() != null) {
+            user.setNumTelephone(request.getNumTelephone());
+        }
+
+        if (request.getAdresse() != null) {
+            user.setAdresse(request.getAdresse());
+        }
+
+        // Mettre à jour la photo de profil si une nouvelle est fournie
+        if (request.getPhotoDeProfil() != null) {
+            user.setPhotoDeProfil(request.getPhotoDeProfil());
+        }
+
+        return userRepository.save(user);
+    }
+
+    @Override
+    public User getUserById(int userId) {
+        return userRepository.findByIdUser(userId);
+    }
+
+    @Override
+    public User loadUserByUsername(String username) {
+        return this.userRepository.findByUsername(username);
+    }
+
+    @Override
+    public List<User> getAllUsers() {
+        return this.userRepository.findAll();
+    }
+
 }

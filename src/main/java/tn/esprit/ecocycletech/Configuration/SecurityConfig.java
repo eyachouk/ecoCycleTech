@@ -17,6 +17,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import tn.esprit.ecocycletech.ExceptionHandling.JwtAuthenticationEntryPoint;
 import tn.esprit.ecocycletech.ExceptionHandling.OAuth2AuthenticationSuccessHandler;
 import tn.esprit.ecocycletech.Security.JwtAuthFilter;
 
@@ -29,6 +30,7 @@ public class SecurityConfig {
     private final JwtAuthFilter jwtAuthFilter;
     private final UserDetailsService userDetailsService;
     private final OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
+    private JwtAuthenticationEntryPoint unauthorizedHandler;
 
 
     public SecurityConfig(JwtAuthFilter jwtAuthFilter, UserDetailsService userDetailsService,
@@ -43,6 +45,9 @@ public class SecurityConfig {
             http
                     .csrf(csrf -> csrf.disable())
                     .cors(cors->cors.configurationSource(corsConfigurationSource))
+                    .exceptionHandling(exception -> exception
+                            .authenticationEntryPoint(unauthorizedHandler)
+                    )
                     .authorizeHttpRequests(auth -> auth
                             .requestMatchers("/api/auth/**","api/forgotPassword/**", "/oauth2/**", "/login/oauth2/**").permitAll()
                             .anyRequest().authenticated()
@@ -61,7 +66,6 @@ public class SecurityConfig {
             )
                     .authenticationProvider(authenticationProvider())
                     .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
-
             return http.build();
         }
 

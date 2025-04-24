@@ -1,5 +1,6 @@
 package tn.esprit.ecocycletech.Security;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Component;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -8,6 +9,7 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.util.StringUtils;
 import tn.esprit.ecocycletech.Entity.UserManagement.User;
 
 import java.security.Key;
@@ -20,6 +22,12 @@ import java.util.function.Function;
 public class JwtUtils {
     @Value("${jwt.secret}")
     private String secret;
+
+    @Value("${jwt.expiration.ms:86400000}") // Default 24 hours
+    private long jwtExpirationMs;
+
+    @Value("${jwt.refresh-window.ms:1800000}") // Default 30 minutes
+    private long refreshWindowMs;
 
     private Key getSigningKey() {
         byte[] keyBytes = Decoders.BASE64.decode(secret);
@@ -53,6 +61,13 @@ public class JwtUtils {
 
     public String generateToken(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
+        // Add additional claims
+        if (userDetails instanceof User) {
+            User user = (User) userDetails;
+            claims.put("id", user.getIdUser());
+            claims.put("role", user.getRole().name());
+            claims.put("email", user.getEmail());
+        }
         return createToken(claims, userDetails.getUsername());
     }
 
@@ -61,15 +76,46 @@ public class JwtUtils {
                 .setClaims(claims)
                 .setSubject(subject)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 1000*60*12))
+                .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationMs))
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
 
-    public Boolean validateToken(String token, UserDetails userDetails) {
+
+    public boolean validateToken(String token) {
+        try {
+            Jwts.parserBuilder()
+                    .setSigningKey(getSigningKey())
+                    .build()
+                    .parseClaimsJws(token);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public Map<String, Object> validateAndExtractClaims(String token) {
+        Map<String, Object> result = new HashMap<>();
+
+        try {
+            Claims claims = extractAllClaims(token);
+            result.put("valid", true);
+            result.put("claims", claims);
+        } catch (Exception e) {
+            result.put("valid", false);
+            result.put("error", e.getMessage());
+        }
+
+        return result;
+    }
+
+
+
+    public boolean validateTokenFilter(String token, UserDetails userDetails) {
         final String username = extractUsername(token);
         return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }
+
     public String generateTokenForOAuth2User(User user) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("id", user.getIdUser());
@@ -80,8 +126,33 @@ public class JwtUtils {
                 .setClaims(claims)
                 .setSubject(user.getEmail())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10)) // 10 hours
+                .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationMs)) // 10 hours
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
+    }
+    public String getTokenFromRequest(HttpServletRequest request) {
+        String bearerToken = request.getHeader("Authorization");
+        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
+            return bearerToken.substring(7);
+        }
+        return null;
+    }
+
+    public boolean canTokenBeRefreshed(String token) {
+        return (!isTokenExpired(token) || isWithinRefreshWindow(token));
+    }
+
+    private boolean isWithinRefreshWindow(String token) {
+        final Date expiration = extractExpiration(token);
+        final Date now = new Date();
+        // Allow refresh if token expired within last 30 minutes
+        return expiration.before(now) &&
+                (now.getTime() - expiration.getTime()) < refreshWindowMs;
+    }
+    public Long extractUserId(String token) {
+        return extractClaim(token, claims -> claims.get("id", Long.class));
+    }
+    public String extractRole(String token) {
+        return extractClaim(token, claims -> claims.get("role", String.class));
     }
 }

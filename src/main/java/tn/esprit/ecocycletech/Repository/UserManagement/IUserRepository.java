@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import tn.esprit.ecocycletech.Entity.UserManagement.User;
 
-import java.beans.Transient;
+import java.util.List;
 import java.util.Optional;
 
 
@@ -19,8 +19,11 @@ public interface IUserRepository extends JpaRepository<User, Integer> {
 
     boolean existsByUsername(String username);
 
+    User findByIdUser(int idUser);
+    User findByUsername(String username);
     @Transactional
     @Modifying
     @Query("update User u set u.password=?2 where u.email=?1")
     void updatePassword(String password, String email);
+    List<User> findAll();
 }

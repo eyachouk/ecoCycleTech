@@ -13,6 +13,7 @@ import org.apache.tomcat.jni.CertificateVerifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -22,16 +23,20 @@ import org.springframework.web.multipart.MultipartFile;
 import tn.esprit.ecocycletech.DTO.LoginRequest;
 import tn.esprit.ecocycletech.DTO.LoginResponse;
 import tn.esprit.ecocycletech.DTO.RegisterRequest;
+import tn.esprit.ecocycletech.DTO.UserUpdateRequest;
 import tn.esprit.ecocycletech.Entity.UserManagement.User;
 import tn.esprit.ecocycletech.ExceptionHandling.UserRegistrationException;
 import tn.esprit.ecocycletech.Security.JwtUtils;
 import tn.esprit.ecocycletech.Service.UserManagement.IUserService;
-import tn.esprit.ecocycletech.Service.UserManagement.RecaptchaService;
 
+import java.io.IOException;
 import java.time.LocalDate;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.List;
+
 
 @RestController
 @RequestMapping("/api/auth")
@@ -40,7 +45,7 @@ public class UserController {
 
     private final IUserService userService;
     private final JwtUtils jwtTokenProvider;
-    private final RecaptchaService recaptchaService;
+    //private final RecaptchaService recaptchaService;
     private final GoogleIdTokenVerifier googleIdTokenVerifier;
 
 
@@ -55,8 +60,7 @@ public class UserController {
             @RequestParam("numTelephone") Long numTelephone,
             @RequestParam("dateNaissance") String dateNaissance,
             @RequestParam("adresse") String adresse,
-            @RequestParam("password") String password,
-            @RequestParam("recaptchaToken") String recaptchaToken) {
+            @RequestParam("password") String password) {
 
         Map<String, Object> response = new HashMap<>();
 
@@ -64,11 +68,7 @@ public class UserController {
 
 
         try {
-            if (!recaptchaService.validateToken(recaptchaToken)) {
-                response.put("success", false);
-                response.put("error", "reCAPTCHA validation failed");
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-            }
+
             // Validation basique des paramètres
             if (email == null || email.isEmpty()) {
                 throw new IllegalArgumentException("Email is required");
@@ -123,13 +123,21 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@Valid @RequestBody LoginRequest request) {
+    public ResponseEntity<Map<String, Object>> login(@Valid @RequestBody LoginRequest request) {
         Map<String, Object> response = new HashMap<>();
 
         try {
             LoginResponse loginResponse = userService.login(request);
-            response.put("success", true);
-            response.put("data", loginResponse);
+
+            // Ensure these fields are included in the response
+            response.put("token", loginResponse.getToken());
+            response.put("email", loginResponse.getEmail());
+            response.put("role", loginResponse.getRole()); // Convert enum to string
+            response.put("id", loginResponse.getId());
+
+            // Add any other fields your frontend expects
+            response.put("username", loginResponse.getUsername());
+
             return ResponseEntity.ok(response);
         } catch (RuntimeException e) {
             response.put("success", false);
@@ -137,7 +145,6 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
         }
     }
-
     @GetMapping("/verify")
     public ResponseEntity<Map<String, Object>> verifyEmail(@RequestParam("token") String token) {
         Map<String, Object> response = new HashMap<>();
@@ -210,6 +217,7 @@ public class UserController {
             response.put("id", user.getIdUser());
             response.put("email", user.getEmail());
             response.put("role", user.getRole().name());
+            response.put("username", user.getUsername()); // Add if available
 
             return ResponseEntity.ok(response);
         } catch (Exception e) {
@@ -248,5 +256,115 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Authentication failed: " + e.getMessage()));
         }
+    }
+
+    @GetMapping("/fetch/{userId}")
+    public ResponseEntity<User> getUserProfile(@PathVariable int userId) {
+        try {
+            User user = userService.getUserById(userId);
+            return ResponseEntity.ok(user);
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @PutMapping("/update/{userId}")
+    public ResponseEntity<?> updateUserProfile(
+            @PathVariable int userId,
+            @RequestParam(value = "photoDeProfil", required = false) MultipartFile file,
+            @RequestParam(value = "nom", required = false) String nom,
+            @RequestParam(value = "prenom", required = false) String prenom,
+            @RequestParam(value = "numTelephone", required = false) Long numTelephone,
+            @RequestParam(value = "adresse", required = false) String adresse) {
+
+        try {
+            // Valider que l'utilisateur connecté est bien celui qu'on met à jour
+            // ou qu'il s'agit d'un admin (à implémenter selon votre logique d'authentification)
+
+            UserUpdateRequest request = new UserUpdateRequest();
+            request.setNom(nom);
+            request.setPrenom(prenom);
+            request.setNumTelephone(numTelephone);
+            request.setAdresse(adresse);
+
+            if (file != null && !file.isEmpty()) {
+                request.setPhotoDeProfil(file.getBytes());
+            }
+
+            User updatedUser = userService.updateUserProfile(userId, request);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "Profile updated successfully");
+            response.put("user", updatedUser);
+
+            return ResponseEntity.ok(response);
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("success", false, "error", "Failed to process image"));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("success", false, "error", e.getMessage()));
+        }
+    }
+    @PostMapping("/refresh-token")
+    public ResponseEntity<?> refreshToken(HttpServletRequest request) {
+        try {
+            String oldToken = jwtTokenProvider.getTokenFromRequest(request);
+            if (oldToken != null && jwtTokenProvider.canTokenBeRefreshed(oldToken)) {
+                String username = jwtTokenProvider.extractUsername(oldToken);
+                User user = userService.loadUserByUsername(username);
+                UserDetails userDetails = getUserDetails(user);
+                String newToken = jwtTokenProvider.generateToken(userDetails);
+
+                return ResponseEntity.ok(new LoginResponse(
+                        newToken,
+                        "Bearer",
+                        user.getIdUser(),
+                        user.getEmail(),
+                        user.getRole().toString(),
+                        user.getUsername()
+
+                ));
+            }
+            return ResponseEntity.badRequest().body("Invalid refresh request");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token refresh failed");
+        }
+    }
+    @GetMapping("/validate")
+    public ResponseEntity<Map<String, Object>> validateToken(HttpServletRequest request) {
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            String token = jwtTokenProvider.getTokenFromRequest(request);
+            if (token == null || !jwtTokenProvider.validateToken(token)) {
+                response.put("valid", false);
+                return ResponseEntity.ok(response);
+            }
+
+            String username = jwtTokenProvider.extractUsername(token);
+            User user = userService.loadUserByUsername(username);
+
+            response.put("valid", true);
+            response.put("user", Map.of(
+                    "id", user.getIdUser(),
+                    "email", user.getEmail(),
+                    "role", user.getRole().name(),
+                    "username", user.getUsername()
+            ));
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            response.put("valid", false);
+            return ResponseEntity.ok(response);
+        }
+    }
+    //backoffice
+    @GetMapping("")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<User>> getAllUsers() {
+        List<User> users = userService.getAllUsers();
+        return ResponseEntity.ok(users);
     }
 }
