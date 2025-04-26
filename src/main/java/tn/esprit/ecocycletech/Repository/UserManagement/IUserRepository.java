@@ -26,4 +26,6 @@ public interface IUserRepository extends JpaRepository<User, Integer> {
     @Query("update User u set u.password=?2 where u.email=?1")
     void updatePassword(String password, String email);
     List<User> findAll();
+    void deleteById(int integer);
+
 }

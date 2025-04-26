@@ -11,6 +11,7 @@
     import tn.esprit.ecocycletech.Entity.CommandesManagement.CommandeReparation;
     import tn.esprit.ecocycletech.Entity.DemandeDeRecyclageManagement.DemandeRecyclage;
     import tn.esprit.ecocycletech.Entity.Enumerations.UserRole;
+    import tn.esprit.ecocycletech.Entity.Enumerations.UserStatus;
     import tn.esprit.ecocycletech.Entity.EvenementsManagement.Evenement;
     import tn.esprit.ecocycletech.Entity.EvenementsManagement.TicketEvenement;
     import tn.esprit.ecocycletech.Entity.ReclamationsManagement.Reclamation;
@@ -67,7 +68,8 @@
         private boolean isActive = true;
         @Builder.Default
         private boolean isBanned = false;
-
+        @Enumerated(EnumType.STRING)
+        private UserStatus status;
         //verification email
         private boolean emailVerified = false;
 

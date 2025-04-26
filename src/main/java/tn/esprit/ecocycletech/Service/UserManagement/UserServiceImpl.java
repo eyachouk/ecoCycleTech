@@ -1,8 +1,11 @@
+
 package tn.esprit.ecocycletech.Service.UserManagement;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -14,13 +17,18 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tn.esprit.ecocycletech.DTO.*;
+import tn.esprit.ecocycletech.Entity.Enumerations.UserStatus;
 import tn.esprit.ecocycletech.Entity.UserManagement.User;
+import tn.esprit.ecocycletech.Entity.UserManagement.VerificationMailEvent;
 import tn.esprit.ecocycletech.Entity.UserManagement.VerificationToken;
 import tn.esprit.ecocycletech.Entity.Enumerations.UserRole;
 import tn.esprit.ecocycletech.ExceptionHandling.UserRegistrationException;
 import tn.esprit.ecocycletech.Repository.UserManagement.*;
 import tn.esprit.ecocycletech.Security.JwtUtils;
+import tn.esprit.ecocycletech.Security.UserDetailsServiceImpl;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
@@ -29,6 +37,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class UserServiceImpl implements IUserService{
 
     private final IUserRepository userRepository;
@@ -36,6 +45,9 @@ public class UserServiceImpl implements IUserService{
     private final JwtUtils jwtUtils;
     private final AuthenticationManager authenticationManager;
     private final IVerificationTokenRepository tokenRepository;
+    private final UserDetailsServiceImpl userDetailsService;
+    private final ApplicationEventPublisher publisher;   // <-- add
+
 
     @Autowired
     private JavaMailSender mailSender;
@@ -43,16 +55,26 @@ public class UserServiceImpl implements IUserService{
     @Value("${app.base-url:http://localhost:4200}")
     private String baseUrl;
 
-    @Transactional
-    public User registerUser(RegisterRequest request) throws IllegalArgumentException,RuntimeException{
-        if (request.getNom() == null || request.getPrenom() == null ||
-                request.getEmail() == null || request.getUsername() == null ||
-                request.getNumTelephone() == null || request.getDateNaissance() == null ||
-                request.getPassword() == null) {
+    // @Transactional
+    public User registerUser(RegisterRequest request) {
+        validateRegisterRequest(request);
+
+        // Save user and create token inside a transaction
+        User savedUser = createUserAndToken(request);
+
+        // Send email outside transaction
+        publisher.publishEvent(new VerificationMailEvent(savedUser.getIdUser()));
+
+        return savedUser;
+    }
+
+    private void validateRegisterRequest(RegisterRequest request) {
+        if (request.getNom() == null || request.getPrenom() == null || request.getEmail() == null ||
+                request.getUsername() == null || request.getNumTelephone() == null ||
+                request.getDateNaissance() == null || request.getPassword() == null) {
             throw new UserRegistrationException("All required fields must be provided", "general");
         }
 
-        // Vérification email et username
         boolean emailExists = userRepository.existsByEmail(request.getEmail());
         boolean usernameExists = userRepository.existsByUsername(request.getUsername());
 
@@ -65,44 +87,48 @@ public class UserServiceImpl implements IUserService{
         if (usernameExists) {
             throw new UserRegistrationException("Username already exists", "username");
         }
+    }
+    //@Transactional
+    public User createUserAndToken(RegisterRequest request) {
         User user = new User();
         user.setNom(request.getNom());
         user.setPrenom(request.getPrenom());
         user.setEmail(request.getEmail());
         user.setUsername(request.getUsername());
         user.setNumTelephone(request.getNumTelephone());
-        user.setDateNaissance(
-                request.getDateNaissance()
-        );
+        user.setDateNaissance(request.getDateNaissance());
         user.setAdresse(request.getAdresse());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setPhotoDeProfil(request.getPhotoDeProfil());
-        // Set default values
-        user.setRole(UserRole.ADMIN);
-        user.setActive(true);
+        user.setRole(UserRole.USER);
+        user.setActive(false);
         user.setBanned(false);
-        user.setEmailVerified(false); // Set email as not verified
+        user.setEmailVerified(false);
 
-        // Save the user
         User savedUser = userRepository.save(user);
 
-        // Create verification token
         VerificationToken token = new VerificationToken(savedUser);
         tokenRepository.save(token);
 
-        // Send verification email
-        sendVerificationEmail(savedUser, token.getToken());
-
         return savedUser;
     }
+    private String getTokenForUser(User user) {
+        return tokenRepository.findByUser(user)
+                .map(VerificationToken::getToken)
+                .orElseThrow(() -> new RuntimeException("Token not found for user"));
+    }
+    public String findVerificationToken(User user) {
+        return getTokenForUser(user);   // re-use your existing private method
+    }
 
-    private void sendVerificationEmail(User user, String token) {
+
+    public void sendVerificationEmail(User user, String token) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(user.getEmail());
         message.setSubject("Complete Registration for EcoCycleTech");
         message.setText("Hello " + user.getPrenom() + ",\n\n" +
                 "Thank you for registering with EcoCycleTech. Please click on the link below to verify your email:\n\n" +
-                baseUrl + "/verify-email?token=" + token + "\n\n" +
+                baseUrl + "/verify-email?token=" + URLEncoder.encode(token, StandardCharsets.UTF_8) + "\n\n" +
                 "This link will expire in 24 hours.\n\n" +
                 "Regards,\nEcoCycleTech Team");
 
@@ -111,32 +137,46 @@ public class UserServiceImpl implements IUserService{
         } catch (Exception e) {
             System.err.println("Failed to send verification email: " + e.getMessage());
         }
+
     }
 
-    @Transactional
-    public boolean verifyEmail(String token) {
+    //@Transactional
+    public LoginResponse verifyEmail(String token) {
+
         VerificationToken verificationToken = tokenRepository.findByToken(token)
-                .orElse(null);
+                .orElseThrow(()->new RuntimeException("Invalid Token"));
 
         if (verificationToken == null || verificationToken.isExpired()) {
-            return false;
+            throw new RuntimeException("Token expired");
         }
 
         User user = verificationToken.getUser();
+        System.out.println("DB has token   : " +
+                tokenRepository.findByUser(user).map(VerificationToken::getToken));
+        System.out.println("Request token  : " + token);
         user.setEmailVerified(true);
+        user.setActive(true);
         userRepository.save(user);
 
         // Delete the token after use
         tokenRepository.delete(verificationToken);
+        UserDetails userDetails = userDetailsService.loadUserByUsername(user.getEmail());
+        String jwt = jwtUtils.generateToken(userDetails);
 
-        return true;
+        return LoginResponse.builder()
+                .token(jwt)
+                .type("Bearer")
+                .id(user.getIdUser())
+                .email(user.getEmail())
+                .role(user.getRole().name())
+                .build();
     }
 
     @Override
     public User findOrCreateGoogleUser(String email, String name, boolean emailVerified) {
-        if (!emailVerified) {
+        /*if (!emailVerified) {
             throw new RuntimeException("Google email not verified");
-        }
+        }*/
 
         // Try to find existing user
         Optional<User> existingUser = userRepository.findByEmail(email);
@@ -193,7 +233,7 @@ public class UserServiceImpl implements IUserService{
 
         if (existingUser.isPresent()) {
             User user = existingUser.get();
-    
+
             // Update user details if they've changed
             if (!user.getNom().equals(name)) {
                 user.setNom(name);
@@ -209,7 +249,7 @@ public class UserServiceImpl implements IUserService{
             newUser.setPrenom(""); // You might want to parse the full name
             newUser.setUsername(email.split("@")[0]); // Use part of email as username
             newUser.setActive(true);
-            newUser.setEmailVerified(emailVerified);
+            newUser.setEmailVerified(true);
 
             // Set a random password (won't be used for Facebook login)
             newUser.setPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
@@ -227,17 +267,25 @@ public class UserServiceImpl implements IUserService{
 
         // First check if the user exists and is verified
         User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> {
-                    System.out.println("User not found for email: " + request.getEmail());
-                    return new RuntimeException("User not found");
-                });
+                .orElseThrow(() -> new RuntimeException("Invalid credentials"));
+        System.out.println("kbal if user.isEmailVerified");
+        // Enforce email verification
+        if (!user.isEmailVerified() && user.getRole().equals(UserRole.USER)) {
+            throw new RuntimeException("Please verify your email first");
+        }
+
+        System.out.println("mbaad if user.isEmailVerified");
+
+        if (!user.isActive() && user.getRole().equals(UserRole.USER)) {
+            throw new RuntimeException("Account is inactive");
+        }
 
         // Optional: Check if email is verified
-        /*
-        if (!user.isEmailVerified()) {
-            throw new RuntimeException("Email not verified. Please check your email for verification link.");
-        }
-        */
+            /*
+            if (!user.isEmailVerified()) {
+                throw new RuntimeException("Email not verified. Please check your email for verification link.");
+            }
+            */
         System.out.println("*****************kbal auhenticate");
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
@@ -257,7 +305,7 @@ public class UserServiceImpl implements IUserService{
                 .role(user.getRole().name())
                 .build();
     }
-    @Transactional
+    //@Transactional
     public User updateUserProfile(int userId, UserUpdateRequest request) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -300,6 +348,39 @@ public class UserServiceImpl implements IUserService{
     @Override
     public List<User> getAllUsers() {
         return this.userRepository.findAll();
+    }
+
+    @Override
+    public void deleteUser(int id) {
+        this.userRepository.deleteById(id);
+    }
+
+    @Override
+    public User changeUserStatus(int id, UserStatus userStatus) {
+        // 1. Find the user by ID
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + id));
+
+        // 2. Check if the status change is valid (optional business logic)
+        if (user.getStatus() == userStatus) {
+            throw new IllegalStateException("User already has status: " + userStatus);
+        }
+
+        // Example of additional business rules:
+        if (userStatus == UserStatus.BANNED && user.getRole() == UserRole.ADMIN) {
+            throw new IllegalStateException("Cannot ban an admin user");
+        }
+
+        // 3. Update the status
+        user.setStatus(userStatus);
+
+        // 4. Save and return the updated user
+        return userRepository.save(user);
+    }
+
+    @Override
+    public Optional<User> getByEmail(String email) {
+        return userRepository.findByEmail(email);
     }
 
 }

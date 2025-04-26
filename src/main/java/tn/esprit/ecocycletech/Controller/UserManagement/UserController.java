@@ -12,6 +12,7 @@ import lombok.Value;
 import org.apache.tomcat.jni.CertificateVerifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -24,8 +25,11 @@ import tn.esprit.ecocycletech.DTO.LoginRequest;
 import tn.esprit.ecocycletech.DTO.LoginResponse;
 import tn.esprit.ecocycletech.DTO.RegisterRequest;
 import tn.esprit.ecocycletech.DTO.UserUpdateRequest;
+import tn.esprit.ecocycletech.Entity.Enumerations.UserStatus;
 import tn.esprit.ecocycletech.Entity.UserManagement.User;
+import tn.esprit.ecocycletech.Entity.UserManagement.VerificationToken;
 import tn.esprit.ecocycletech.ExceptionHandling.UserRegistrationException;
+import tn.esprit.ecocycletech.Repository.UserManagement.IVerificationTokenRepository;
 import tn.esprit.ecocycletech.Security.JwtUtils;
 import tn.esprit.ecocycletech.Service.UserManagement.IUserService;
 
@@ -47,7 +51,7 @@ public class UserController {
     private final JwtUtils jwtTokenProvider;
     //private final RecaptchaService recaptchaService;
     private final GoogleIdTokenVerifier googleIdTokenVerifier;
-
+    private final IVerificationTokenRepository tokenRepository;
 
 
     @PostMapping("/register")
@@ -90,14 +94,15 @@ public class UserController {
             }
 
             User user = userService.registerUser(request);
-            UserDetails userDetails = getUserDetails(user);
+//            UserDetails userDetails = getUserDetails(user);
+//
+//            String token = jwtTokenProvider.generateToken(userDetails);
 
-            String token = jwtTokenProvider.generateToken(userDetails);
-
+            String token = userService.findVerificationToken(user);   // <-- fetch it
             response.put("success", true);
-            response.put("message", "User registered successfully");
-            response.put("token", token);
+            response.put("message", "Verification e-mail sent!");
             response.put("userId", user.getIdUser());
+            //response.put("verificationToken", token);
 
             return ResponseEntity.ok(response);
 
@@ -145,27 +150,40 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
         }
     }
-    @GetMapping("/verify")
-    public ResponseEntity<Map<String, Object>> verifyEmail(@RequestParam("token") String token) {
-        Map<String, Object> response = new HashMap<>();
+            @GetMapping("/verify-email")
+            public ResponseEntity<Map<String, Object>> verifyEmail(@RequestParam("token") String token) {
+                // 1️⃣ guard against hidden whitespace
+                token = token.trim();
 
-        try {
-            boolean verified = userService.verifyEmail(token);
-            if (verified) {
-                response.put("success", true);
-                response.put("message", "Email verified successfully");
-                return ResponseEntity.ok(response);
-            } else {
-                response.put("success", false);
-                response.put("error", "Invalid or expired token");
-                return ResponseEntity.badRequest().body(response);
+                // 2️⃣ do the lookup
+
+
+
+                try {
+                    LoginResponse lr = userService.verifyEmail(token);
+
+                    return ResponseEntity.ok(Map.of(
+                            "success", true,
+                            "message", "Email vérifié avec succès",
+                            "token",   lr.getToken(),
+                            "tokenType", lr.getType(),
+                            "user", Map.of(
+                                    "id",    lr.getId(),
+                                    "email", lr.getEmail(),
+                                    "role",  lr.getRole(),
+                                    "isVerified", true,
+                                    "isActive",   true)
+                    ));
+                }  catch (RuntimeException ex) {           // Invalid / expired token
+                    if ("Invalid Token".equals(ex.getMessage())) {
+                        return ResponseEntity.ok(Map.of(
+                                "success", false,
+                                "message", "Le compte est déjà vérifié ou le lien n’est plus valable."));
+                    }
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                            .body(Map.of("success", false, "error", ex.getMessage()));
+                }
             }
-        } catch (Exception e) {
-            response.put("success", false);
-            response.put("error", "Verification process failed");
-            return ResponseEntity.internalServerError().body(response);
-        }
-    }
 
     private UserDetails getUserDetails(User user) {
         return org.springframework.security.core.userdetails.User
@@ -258,7 +276,7 @@ public class UserController {
         }
     }
 
-    @GetMapping("/fetch/{userId}")
+    /*@GetMapping("/fetch/{userId}")
     public ResponseEntity<User> getUserProfile(@PathVariable int userId) {
         try {
             User user = userService.getUserById(userId);
@@ -266,7 +284,7 @@ public class UserController {
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
         }
-    }
+    }*/
 
     @PutMapping("/update/{userId}")
     public ResponseEntity<?> updateUserProfile(
@@ -367,4 +385,34 @@ public class UserController {
         List<User> users = userService.getAllUsers();
         return ResponseEntity.ok(users);
     }
+    @DeleteMapping("/users/{id}")
+    public ResponseEntity<Void> deleteUser(@PathVariable int id) {
+        userService.deleteUser(id);
+        return ResponseEntity.noContent().build();
+    }
+    // User Status Management Endpoints
+    @PutMapping("/users/{id}/ban")
+    public ResponseEntity<User> banUser(@PathVariable int id) {
+        User bannedUser = userService.changeUserStatus(id, UserStatus.BANNED);
+        return ResponseEntity.ok(bannedUser);
+    }
+
+    @PutMapping("/users/{id}/unban")
+    public ResponseEntity<User> unbanUser(@PathVariable int id) {
+        User unbannedUser = userService.changeUserStatus(id, UserStatus.ACTIVE);
+        return ResponseEntity.ok(unbannedUser);
+    }
+
+    @PutMapping("/users/{id}/activate")
+    public ResponseEntity<User> activateUser(@PathVariable int id) {
+        User activatedUser = userService.changeUserStatus(id, UserStatus.ACTIVE);
+        return ResponseEntity.ok(activatedUser);
+    }
+
+    @PutMapping("/users/{id}/deactivate")
+    public ResponseEntity<User> deactivateUser(@PathVariable int id) {
+        User deactivatedUser = userService.changeUserStatus(id, UserStatus.INACTIVE);
+        return ResponseEntity.ok(deactivatedUser);
+    }
+
 }
