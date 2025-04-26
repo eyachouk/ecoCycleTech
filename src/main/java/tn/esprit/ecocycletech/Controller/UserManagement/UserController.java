@@ -1,4 +1,50 @@
 package tn.esprit.ecocycletech.Controller.UserManagement;
 
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+import tn.esprit.ecocycletech.Entity.UserManagement.User;
+import tn.esprit.ecocycletech.Service.UserManagement.IUserService;
+
+import java.util.List;
+@RestController
+@RequestMapping("/api/users")
+@CrossOrigin(origins = "http://localhost:4200")
+@Validated
 public class UserController {
+
+    private final IUserService userService;
+
+    public UserController(IUserService userService) {
+        this.userService = userService;
+    }
+
+    @GetMapping
+    public List<User> getAllUsers() {
+        return userService.getAllUsers();
+    }
+
+    @GetMapping("/{id}")
+    public User getUserById(@PathVariable int id) {
+        return userService.getUserById(id);
+    }
+
+    @PostMapping
+    public User createUser(@RequestBody User user) {
+        return userService.createUser(user);
+    }
+
+    @PutMapping("/{id}")
+    public User updateUser(@PathVariable int id, @RequestBody User user) {
+        return userService.updateUser(id, user);
+    }
+
+    @DeleteMapping("/{id}")
+    public void deleteUser(@PathVariable int id) {
+        userService.deleteUser(id);
+    }
+
+    @GetMapping("/email/{email}")
+    public User getUserByEmail(@PathVariable String email) {
+        return userService.getUserByEmail(email);
+    }
 }

@@ -1,17 +1,18 @@
 package tn.esprit.ecocycletech.Entity.AppareilsManagement;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.antlr.v4.runtime.misc.NotNull;
-import org.springframework.http.ResponseEntity;
 import tn.esprit.ecocycletech.Entity.Enumerations.EtatAppareil;
 
 import java.io.Serializable;
 import java.util.List;
-import java.util.Optional;
 
 @Entity
 
@@ -23,20 +24,23 @@ public class Appareil implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int idAppareil;
-    @NotNull
     private String nom;
     private String categorie;
-    private EtatAppareil etatAppareil;//kenet esmha type walet esmha etat
+    private EtatAppareil etatAppareil;
     private String marque;
-    private int quantite;
     private double prix;
     private String description;
     private String imageurl;
 
-    @OneToMany(cascade = CascadeType.ALL,mappedBy = "appareil")
+    @OneToMany(mappedBy = "appareil")
     private List<Avis> Avis;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "reservation_id")
+    @JsonIdentityInfo(
+            generator = ObjectIdGenerators.PropertyGenerator.class,
+            property = "idReservation"
+    )
     private Reservation reservation;
 
     public int getIdAppareil() {
@@ -63,12 +67,13 @@ public class Appareil implements Serializable {
         this.categorie = categorie;
     }
 
-    public EtatAppareil getEtatAppareil() {
-        return etatAppareil;
+    public String getEtatAppareil() {
+        return etatAppareil != null ? etatAppareil.name() : null; // Converts to String
     }
 
-    public void setEtatAppareil(EtatAppareil etatAppareil) {
-        this.etatAppareil = etatAppareil;
+
+    public void setEtatAppareil(String etatAppareilString) {
+        this.etatAppareil = EtatAppareil.fromString(etatAppareilString);
     }
 
     public String getMarque() {
@@ -79,12 +84,12 @@ public class Appareil implements Serializable {
         this.marque = marque;
     }
 
-    public int getQuantite() {
-        return quantite;
+    public List<Avis> getAvis() {
+        return Avis;
     }
 
-    public void setQuantite(int quantite) {
-        this.quantite = quantite;
+    public void setAvis(List<Avis> avis) {
+        Avis = avis;
     }
 
     public double getPrix() {
@@ -115,7 +120,25 @@ public class Appareil implements Serializable {
         return reservation;
     }
 
+
     public void setReservation(Reservation reservation) {
+        // Prevent infinite loop
+        if (this.reservation == reservation) {
+            return;
+        }
+
+        // Remove from old reservation
+        Reservation oldReservation = this.reservation;
+        if (oldReservation != null) {
+            oldReservation.removeAppareil(this);
+        }
+
+        // Set new reservation
         this.reservation = reservation;
+
+        // Add to new reservation
+        if (reservation != null) {
+            reservation.addAppareil(this);
+        }
     }
 }

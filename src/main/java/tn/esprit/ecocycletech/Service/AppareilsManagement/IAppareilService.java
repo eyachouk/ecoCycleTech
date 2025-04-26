@@ -10,4 +10,5 @@ public interface IAppareilService {
     public boolean deleteAppareil(int id);
     public Appareil saveAppareil(Appareil appareil);
     public Appareil updateAppareil(int id, Appareil appareil);
+    public double calculerNoteMoyenne(Appareil appareil);
 }
