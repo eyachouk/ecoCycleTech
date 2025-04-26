@@ -2,7 +2,6 @@ package tn.esprit.ecocycletech;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.scheduling.annotation.EnableAsync;
 
@@ -10,6 +9,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
 @EnableAspectJAutoProxy
 //@EntityScan("tn.esprit.ecocycletech.Entity")
 @EnableAsync
+
 public class EcoCycleTechApplication {
 
     public static void main(String[] args) {

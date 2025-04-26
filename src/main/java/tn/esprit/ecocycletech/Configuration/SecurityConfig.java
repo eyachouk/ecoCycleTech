@@ -49,7 +49,7 @@ public class SecurityConfig {
                             .authenticationEntryPoint(unauthorizedHandler)
                     )
                     .authorizeHttpRequests(auth -> auth
-                            .requestMatchers("/api/auth/**","/api/users/**","api/forgotPassword/**", "/oauth2/**", "/login/oauth2/**").permitAll()
+                            .requestMatchers("/api/auth/**","/api/users/**","/api/chat","api/forgotPassword/**", "/oauth2/**", "/login/oauth2/**").permitAll()
                             .anyRequest().authenticated()
                     )
                     .sessionManagement(session -> session
