@@ -16,7 +16,7 @@ public class ExpirationCheckerService {
     @Autowired
     private IEspaceStockageRepository espaceRepo;
 
-    @Scheduled(cron = "0 0 0 * * ?", zone = "Europe/Paris") // 00:40 AM
+    @Scheduled(cron = "0 0 0 * * ?", zone = "Europe/Paris")
     public void checkAndExpireSpaces() {
         System.out.println("Scheduled task running: " + new Date());
         Date now = new Date();

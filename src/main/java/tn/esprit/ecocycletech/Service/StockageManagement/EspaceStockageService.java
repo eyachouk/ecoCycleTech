@@ -90,4 +90,9 @@ public class EspaceStockageService implements IEspaceStockageService {
         espaceStockageRepository.save(e);
         return e;
     }
+
+
+
+
+
 }

@@ -10,4 +10,6 @@ import java.util.Optional;
 public interface IFichierRepository extends JpaRepository<Fichier,Long> {
 
     public Fichier findByIdFichier(Long id);
+
+    public Fichier findByCloudinaryPublicId(String publicId);
 }

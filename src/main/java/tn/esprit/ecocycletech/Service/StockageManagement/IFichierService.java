@@ -11,4 +11,5 @@ public interface IFichierService {
     Fichier addFichier (Fichier f);
     Fichier updateFichier (Fichier f);
     void DeleteFichier(Long id);
+    Fichier GetFichierByPublicId(String publicId);
 }

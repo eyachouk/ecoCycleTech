@@ -61,25 +61,11 @@ public class FichierController {
     }
 
 
-    @PostMapping("/upload")
-    public ResponseEntity<Map<String, String>> uploadFile(@RequestParam("file") MultipartFile file,
-                                                          @RequestParam("folder") String folder) {
-        try {
-            Map<String, String> uploadResult = cloudinaryservice.uploadFile(file, folder);
-            return ResponseEntity.ok(uploadResult);
-        } catch (IOException e) {
-            return ResponseEntity.status(500).body(Map.of("error", "File upload failed"));
-        }
-    }
 
-    @DeleteMapping("/deletecloud/{publicId}")
-    public ResponseEntity<String> deleteFile(@PathVariable String publicId) {
-        try {
-            cloudinaryservice.deleteFile(publicId);
-            return ResponseEntity.ok("File deleted successfully");
-        } catch (IOException e) {
-            return ResponseEntity.status(500).body("File deletion failed");
-        }
+
+    @GetMapping("/getFichierByPublicId")
+    public Fichier retrieveFichierByPublicId(@RequestParam("publicId") String publicId) {
+        return fichierService.GetFichierByPublicId(publicId);
     }
 
 

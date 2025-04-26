@@ -45,4 +45,10 @@ public class FichierService implements IFichierService {
     public void DeleteFichier(Long id) {
         fichierRepository.deleteById(id);
     }
+
+
+    @Override
+    public Fichier GetFichierByPublicId(String publicId){
+        return fichierRepository.findByCloudinaryPublicId(publicId);
+    }
 }

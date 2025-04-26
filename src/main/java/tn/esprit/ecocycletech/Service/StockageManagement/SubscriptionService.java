@@ -12,6 +12,8 @@ import tn.esprit.ecocycletech.Repository.StockageManagement.ISubscriptionReposit
 import tn.esprit.ecocycletech.Repository.UserManagement.IUserRepository;
 
 import java.util.List;
+import java.util.Optional;
+
 @Service
 public class SubscriptionService implements ISubscriptionService {
 
@@ -82,5 +84,19 @@ public class SubscriptionService implements ISubscriptionService {
     @Override
     public void DeleteSubscription(Long id) {
         subscriptionRepo.deleteById(id);
+    }
+
+
+    @Override
+    public boolean hasActiveSubscription(Long userId) {
+        Optional <Subscription[]> subs = subscriptionRepo.findActiveSubscriptionByUserId(userId);
+        return subs.isPresent() && subs.get().length > 0;
+    }
+
+    @Override
+    public Optional<EspaceStockage> GetActiveEspaceStockageByUserId(Long userId) {
+        return subscriptionRepo.findByUserIdAndIsActiveTrue(userId)
+                .map(subscription -> subscription.getEspace());
+
     }
 }

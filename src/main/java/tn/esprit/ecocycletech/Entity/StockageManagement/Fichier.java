@@ -9,6 +9,7 @@ import lombok.Setter;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.Calendar;
 import java.util.Date;
 
 @Entity
@@ -23,7 +24,7 @@ public class Fichier implements Serializable {
     private long idFichier;
     private String nom;
     private Long taille;
-    @Temporal(TemporalType.DATE)
+    @Temporal(TemporalType.TIMESTAMP)
     private Date dateUpload;
     private String urlStockage;
     @ManyToOne
@@ -31,10 +32,27 @@ public class Fichier implements Serializable {
     private EspaceStockage espace;
     private TypeFichier type;
     private String cloudinaryPublicId;
+    private ExtensionFichier extension;
 
 
     public long getIdFichier() {
         return idFichier;
+    }
+
+    public String getCloudinaryPublicId() {
+        return cloudinaryPublicId;
+    }
+
+    public void setCloudinaryPublicId(String cloudinaryPublicId) {
+        this.cloudinaryPublicId = cloudinaryPublicId;
+    }
+
+    public ExtensionFichier getExtension() {
+        return extension;
+    }
+
+    public void setExtension(ExtensionFichier extension) {
+        this.extension = extension;
     }
 
     public void setIdFichier(long idFichier) {
@@ -87,5 +105,11 @@ public class Fichier implements Serializable {
 
     public void setType(TypeFichier type) {
         this.type = type;
+    }
+
+
+    @PrePersist
+    protected void onCreate() {
+        this.dateUpload = new Date(); // set to current date
     }
 }

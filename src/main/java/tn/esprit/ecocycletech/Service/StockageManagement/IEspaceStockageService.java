@@ -15,4 +15,6 @@ public interface IEspaceStockageService {
     EspaceStockage unblockEspaceStockage (EspaceStockage e);
 
     List<EspaceStockage> GetEspaceStockageByPlan(long id);
+
+
 }
