@@ -341,7 +341,8 @@ public class UserController {
                         user.getIdUser(),
                         user.getEmail(),
                         user.getRole().toString(),
-                        user.getUsername()
+                        user.getUsername(),
+                        user.isEmailVerified()
 
                 ));
             }
@@ -399,7 +400,7 @@ public class UserController {
 
     @PutMapping("/users/{id}/unban")
     public ResponseEntity<User> unbanUser(@PathVariable int id) {
-        User unbannedUser = userService.changeUserStatus(id, UserStatus.ACTIVE);
+        User unbannedUser = userService.changeUserStatus(id, UserStatus.UNBANNED);
         return ResponseEntity.ok(unbannedUser);
     }
 
@@ -414,5 +415,10 @@ public class UserController {
         User deactivatedUser = userService.changeUserStatus(id, UserStatus.INACTIVE);
         return ResponseEntity.ok(deactivatedUser);
     }
-
+    @GetMapping("/statistics/age")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Map<String, Integer>> getUserAgeStatistics() {
+        Map<String, Integer> ageStatistics = userService.calculateUserAgeStatistics();
+        return ResponseEntity.ok(ageStatistics);
+    }
 }

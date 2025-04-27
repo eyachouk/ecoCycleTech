@@ -29,11 +29,10 @@ import tn.esprit.ecocycletech.Security.UserDetailsServiceImpl;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
+import java.time.Period;
 import java.time.ZoneId;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -101,7 +100,7 @@ public class UserServiceImpl implements IUserService{
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setPhotoDeProfil(request.getPhotoDeProfil());
         user.setRole(UserRole.USER);
-        user.setActive(false);
+        user.setActive(true);
         user.setBanned(false);
         user.setEmailVerified(false);
 
@@ -169,6 +168,7 @@ public class UserServiceImpl implements IUserService{
                 .id(user.getIdUser())
                 .email(user.getEmail())
                 .role(user.getRole().name())
+                .emailVerified(user.isEmailVerified())
                 .build();
     }
 
@@ -246,9 +246,14 @@ public class UserServiceImpl implements IUserService{
             User newUser = new User();
             newUser.setEmail(email);
             newUser.setNom(name);
+            newUser.setDateNaissance(new Date().toInstant()
+                    .atZone(ZoneId.systemDefault())
+                    .toLocalDate());
+            newUser.setAdresse("");
             newUser.setPrenom(""); // You might want to parse the full name
             newUser.setUsername(email.split("@")[0]); // Use part of email as username
             newUser.setActive(true);
+            newUser.setNumTelephone(0L);
             newUser.setEmailVerified(true);
 
             // Set a random password (won't be used for Facebook login)
@@ -261,8 +266,8 @@ public class UserServiceImpl implements IUserService{
         }
     }
 
-    // You might want to update the login method to check if email is verified
-    public LoginResponse login(LoginRequest request) {
+    // avant d'empecher l'utilisateur de se connecter si banned ou inactive et le laisse connecter si unverified(last worked function)
+   /* public LoginResponse login(LoginRequest request) {
         System.out.println("Attempting login for email: " + request.getEmail());
 
         // First check if the user exists and is verified
@@ -285,7 +290,7 @@ public class UserServiceImpl implements IUserService{
             if (!user.isEmailVerified()) {
                 throw new RuntimeException("Email not verified. Please check your email for verification link.");
             }
-            */
+
         System.out.println("*****************kbal auhenticate");
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
@@ -304,7 +309,43 @@ public class UserServiceImpl implements IUserService{
                 .email(user.getEmail())
                 .role(user.getRole().name())
                 .build();
+    }*/
+    public LoginResponse login(LoginRequest request) {
+        System.out.println("Attempting login for email: " + request.getEmail());
+
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new RuntimeException("Invalid credentials"));
+
+        // 1. Vérifier si banni
+        if (user.getStatus() == UserStatus.BANNED) {
+            throw new RuntimeException("Your account is banned. Please contact support.");
+        }
+
+        if (!user.isActive()) {
+            throw new RuntimeException("Your account is inactive. Please contact support.");
+        }
+
+
+        // 3. Pas de blocage pour email non vérifié !
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
+        );
+
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        String jwt = jwtUtils.generateToken((UserDetails) authentication.getPrincipal());
+
+        return LoginResponse.builder()
+                .token(jwt)
+                .type("Bearer")
+                .id(user.getIdUser())
+                .email(user.getEmail())
+                .role(user.getRole().name())
+                .username(user.getUsername())
+                .emailVerified(user.isEmailVerified()) // Ajouter cet attribut
+                .build();
     }
+
+
     //@Transactional
     public User updateUserProfile(int userId, UserUpdateRequest request) {
         User user = userRepository.findById(userId)
@@ -357,24 +398,30 @@ public class UserServiceImpl implements IUserService{
 
     @Override
     public User changeUserStatus(int id, UserStatus userStatus) {
-        // 1. Find the user by ID
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + id));
 
-        // 2. Check if the status change is valid (optional business logic)
         if (user.getStatus() == userStatus) {
-            throw new IllegalStateException("User already has status: " + userStatus);
+            return user; // Déjà au bon statut => ne rien faire
         }
 
-        // Example of additional business rules:
         if (userStatus == UserStatus.BANNED && user.getRole() == UserRole.ADMIN) {
             throw new IllegalStateException("Cannot ban an admin user");
         }
 
-        // 3. Update the status
+        // Synchroniser le champ isBanned selon le nouveau statut
+        if (userStatus == UserStatus.BANNED) {
+            user.setBanned(true);
+        } else if(userStatus==UserStatus.ACTIVE) {
+            user.setActive(true);
+        } else if (userStatus == UserStatus.INACTIVE) {
+            user.setActive(false);
+        } else if(userStatus==UserStatus.UNBANNED)  {
+            user.setBanned(false);
+        }
+
         user.setStatus(userStatus);
 
-        // 4. Save and return the updated user
         return userRepository.save(user);
     }
 
@@ -382,5 +429,31 @@ public class UserServiceImpl implements IUserService{
     public Optional<User> getByEmail(String email) {
         return userRepository.findByEmail(email);
     }
+    @Override
+    public Map<String, Integer> calculateUserAgeStatistics() {
+        List<User> users = userRepository.findAll();
+        Map<String, Integer> stats = new HashMap<>();
+
+        // Catégories
+        stats.put("0-18", 0);
+        stats.put("19-25", 0);
+        stats.put("26-35", 0);
+        stats.put("36-50", 0);
+        stats.put("51+", 0);
+
+        for (User user : users) {
+            if (user.getDateNaissance() != null) {
+                int age =   Period.between(user.getDateNaissance(), LocalDate.now()).getYears();
+                if (age <= 18) stats.put("0-18", stats.get("0-18") + 1);
+                else if (age <= 25) stats.put("19-25", stats.get("19-25") + 1);
+                else if (age <= 35) stats.put("26-35", stats.get("26-35") + 1);
+                else if (age <= 50) stats.put("36-50", stats.get("36-50") + 1);
+                else stats.put("51+", stats.get("51+") + 1);
+            }
+        }
+
+        return stats;
+    }
+
 
 }

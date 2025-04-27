@@ -5,6 +5,7 @@ import tn.esprit.ecocycletech.Entity.Enumerations.UserStatus;
 import tn.esprit.ecocycletech.Entity.UserManagement.User;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public interface IUserService {
@@ -27,4 +28,6 @@ public interface IUserService {
     //Optional<User> getOptional(Integer id);
 
     Optional<User> getByEmail(String email);
+
+    Map<String, Integer> calculateUserAgeStatistics();
 }
