@@ -76,6 +76,7 @@ public class UserServiceImpl implements IUserService{
 
         boolean emailExists = userRepository.existsByEmail(request.getEmail());
         boolean usernameExists = userRepository.existsByUsername(request.getUsername());
+        boolean phoneExists    = userRepository.existsByNumTelephone(request.getNumTelephone());   // ★
 
         if (emailExists && usernameExists) {
             throw new UserRegistrationException("Email and username already exist", "both");
@@ -86,6 +87,8 @@ public class UserServiceImpl implements IUserService{
         if (usernameExists) {
             throw new UserRegistrationException("Username already exists", "username");
         }
+        if (phoneExists)    throw new UserRegistrationException("Phone already exists","numTelephone"); // ★
+
     }
     //@Transactional
     public User createUserAndToken(RegisterRequest request) {
