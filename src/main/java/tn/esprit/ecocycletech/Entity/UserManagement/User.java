@@ -1,5 +1,7 @@
 package tn.esprit.ecocycletech.Entity.UserManagement;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import tn.esprit.ecocycletech.Entity.AppareilsManagement.Avis;
 import tn.esprit.ecocycletech.Entity.AppareilsManagement.Reservation;
 import tn.esprit.ecocycletech.Entity.CommandesManagement.CommandeReparation;
@@ -43,6 +45,7 @@ public class User implements Serializable {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<CommandeReparation> commandeReparationList;
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<TicketEvenement> ticketEvenementList;
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<DemandeRecyclage> demandeRecyclageList;

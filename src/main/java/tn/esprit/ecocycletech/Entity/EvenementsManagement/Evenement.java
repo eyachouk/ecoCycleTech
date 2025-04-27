@@ -1,5 +1,7 @@
 package tn.esprit.ecocycletech.Entity.EvenementsManagement;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -21,13 +23,17 @@ public class Evenement implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int idEvenement;
     private String nomEvenement;
-    @Temporal(TemporalType.DATE)
+    @Temporal(TemporalType.TIMESTAMP)
     private Date dateEvenement;
     private String localisationEvenement;
+    public String provenanceEvenement;
     private int nbrPlacesEvenement;
     private double prixEvenement;
+    public String aftermovie;
 
     @OneToMany(mappedBy = "evenement", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<TicketEvenement> ticketEvenementList;
+
 
 }

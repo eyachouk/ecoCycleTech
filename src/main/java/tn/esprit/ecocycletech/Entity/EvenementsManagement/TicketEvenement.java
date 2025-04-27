@@ -1,5 +1,6 @@
 package tn.esprit.ecocycletech.Entity.EvenementsManagement;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -20,11 +21,12 @@ public class TicketEvenement implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int idTicketEvenement;
     @ManyToOne
-    @JoinColumn(name = "evenement", nullable = false)
+    @JoinColumn(name = "evenement")
     private Evenement evenement;
-    @Temporal(TemporalType.DATE)
+    @Temporal(TemporalType.TIMESTAMP)
     private Date dateAchat;
+    private String qrCodeUrl;
     @ManyToOne
-    @JoinColumn(name = "idUser", nullable = false)
+    @JoinColumn(name = "idUser", nullable = true )
     private User user;
 }

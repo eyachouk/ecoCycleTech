@@ -11,4 +11,9 @@ public interface IEvenementService {
     public  Evenement update(Evenement event);
     public Evenement add(Evenement event);
     List<Evenement> retrieveAllEvenements();
+    List<Evenement> getEventsSortedByDateDesc();
+    List<Evenement> getEventsSortedByDateAsc();
+    List<Evenement> getTodayEvents();
+    List<Evenement> getUpcomingEvents();
+    List<Evenement> getPastEvents();
 }

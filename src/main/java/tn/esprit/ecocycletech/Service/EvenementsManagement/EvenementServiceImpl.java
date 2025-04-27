@@ -45,4 +45,29 @@ public class EvenementServiceImpl implements IEvenementService {
     public List<Evenement> retrieveAllEvenements() {
         return eventrepository.findAll();
     }
+
+    @Override
+    public List<Evenement> getEventsSortedByDateDesc() {
+        return eventrepository.findAllByOrderByDateEvenementDesc();
+    }
+
+    @Override
+    public List<Evenement> getEventsSortedByDateAsc() {
+        return eventrepository.findAllByOrderByDateEvenementAsc();
+    }
+
+    @Override
+    public List<Evenement> getTodayEvents() {
+        return eventrepository.findEventsForToday();
+    }
+
+    @Override
+    public List<Evenement> getUpcomingEvents() {
+        return eventrepository.findUpcomingEvents();
+    }
+
+    @Override
+    public List<Evenement> getPastEvents() {
+        return eventrepository.findPastEvents();
+    }
 }

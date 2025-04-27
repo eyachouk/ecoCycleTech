@@ -10,4 +10,5 @@ public interface ITicketEvenementService {
     public  TicketEvenement update(TicketEvenement ticket);
     public TicketEvenement add(TicketEvenement ticket);
     List<TicketEvenement> retrieveAllTicketEvenement();
+    List<TicketEvenement> findByUserId(int idUser);
 }

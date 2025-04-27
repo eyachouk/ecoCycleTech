@@ -9,6 +9,7 @@ import tn.esprit.ecocycletech.Entity.EvenementsManagement.Evenement;
 import tn.esprit.ecocycletech.Service.EvenementsManagement.IEvenementService;
 
 import java.util.List;
+@CrossOrigin(origins = "http://localhost:4200")
 
 @RequestMapping("/evenement")
 
@@ -16,25 +17,47 @@ import java.util.List;
 public class EvenementController {
     @Autowired
     IEvenementService evenementService;
-    @PostMapping("/saveevenement")
+    @PostMapping
     public Evenement saveevenement(@RequestBody Evenement event) {
         return evenementService.save(event);
     }
-    @GetMapping("/findevenementid/{id}")
+    @GetMapping("/{id}")
     public Evenement findById(@PathVariable int id) {
         return evenementService.findById(id);
     }
-    @GetMapping("/allevenemnts")
+    @GetMapping
     public List<Evenement> getAllEvenements() {
         return evenementService.retrieveAllEvenements();
     }
-    @PutMapping("/updateevenement/{id}")
+    @PutMapping("/{id}")
     public Evenement updateEvenement(@PathVariable int id,@RequestBody Evenement event) {
         return evenementService.update(event);
     }
-    @DeleteMapping("/deleteevenemt/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteEvenement(@PathVariable int id) {
         evenementService.delete(id);
         return ResponseEntity.ok("Event deleted successfully");
+    }
+    @GetMapping("/recent")
+    public List<Evenement> getEventsSortedByDateDesc() {
+        return evenementService.getEventsSortedByDateDesc();
+    }
+    @GetMapping("/oldest")
+    public List<Evenement> getEventsSortedByDateAsc() {
+        return evenementService.getEventsSortedByDateAsc();
+    }
+    @GetMapping("/today")
+    public List<Evenement> getTodayEvents() {
+        return evenementService.getTodayEvents();
+    }
+
+    @GetMapping("/upcoming")
+    public List<Evenement> getUpcomingEvents() {
+        return evenementService.getUpcomingEvents();
+    }
+
+    @GetMapping("/past")
+    public List<Evenement> getPastEvents() {
+        return evenementService.getPastEvents();
     }
 }
