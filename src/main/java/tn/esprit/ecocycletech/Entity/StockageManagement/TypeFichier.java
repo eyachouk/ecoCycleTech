@@ -4,5 +4,6 @@ public enum TypeFichier {
     IMAGE,
     VIDEO,
     DOCUMENT,
-    AUDIO
+    AUDIO,
+    UNKNOWN
 }

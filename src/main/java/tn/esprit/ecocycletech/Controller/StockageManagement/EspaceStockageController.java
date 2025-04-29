@@ -64,4 +64,9 @@ public class EspaceStockageController {
 
         return espaceStockageService.unblockEspaceStockage(espaceStockageService.GetEspaceStockage(id));
     }
+
+    @GetMapping("/getOccupiedSpace/{id}")
+    public Long GetOccupiedSpace(@PathVariable("id") long id){
+        return espaceStockageService.getOccupiedSpace(id);
+    }
 }

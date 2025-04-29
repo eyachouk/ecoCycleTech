@@ -48,7 +48,7 @@ public class Subscription implements Serializable{
    @ManyToOne
    private PlanStockage planStockage;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.REMOVE, CascadeType.MERGE})
     private EspaceStockage espace;
 
 

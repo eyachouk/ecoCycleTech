@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import tn.esprit.ecocycletech.Entity.StockageManagement.DTOs.PlanSubscriptionCount;
+import tn.esprit.ecocycletech.Entity.StockageManagement.DTOs.SubscriptionCountByDate;
 import tn.esprit.ecocycletech.Entity.StockageManagement.EspaceStockage;
 import tn.esprit.ecocycletech.Entity.StockageManagement.Subscription;
 import tn.esprit.ecocycletech.Service.StockageManagement.IEspaceStockageService;
@@ -58,6 +60,28 @@ public class SubscriptionController {
         Optional<EspaceStockage> espace = subscriptionService.GetActiveEspaceStockageByUserId(userId);
         return espace.map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+
+    @GetMapping("/getSubscriptionByEspace/{espaceId}")
+    public Subscription GetSubscriptionByEspace(@PathVariable Long espaceId) {
+        return subscriptionService.findByEspace(espaceId);
+    }
+
+
+    @GetMapping("/subscriptionslast7days")
+    public List<SubscriptionCountByDate> getLast7DaysSubscriptions() {
+        return subscriptionService.getSubscriptionsLast7Days();
+    }
+
+    @GetMapping("/bestplans")
+    public List<PlanSubscriptionCount> getBestPlans() {
+        return subscriptionService.getBestPlansBySubscriptions();
+    }
+
+    @GetMapping("/plans-count")
+    public List<PlanSubscriptionCount> getPlanSubscriptionCounts() {
+        return subscriptionService.getPlanSubscriptionCounts();
     }
 
 }

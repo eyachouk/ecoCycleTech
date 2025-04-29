@@ -1,5 +1,7 @@
 package tn.esprit.ecocycletech.Service.StockageManagement;
 
+import tn.esprit.ecocycletech.Entity.StockageManagement.DTOs.PlanSubscriptionCount;
+import tn.esprit.ecocycletech.Entity.StockageManagement.DTOs.SubscriptionCountByDate;
 import tn.esprit.ecocycletech.Entity.StockageManagement.EspaceStockage;
 import tn.esprit.ecocycletech.Entity.StockageManagement.PlanStockage;
 import tn.esprit.ecocycletech.Entity.StockageManagement.Subscription;
@@ -17,4 +19,11 @@ public interface ISubscriptionService {
 
     public Optional<EspaceStockage> GetActiveEspaceStockageByUserId(Long userId);
 
+
+    public Subscription findByEspace(Long espaceid);
+    public List<SubscriptionCountByDate> getSubscriptionsLast7Days();
+
+    public List<PlanSubscriptionCount> getBestPlansBySubscriptions();
+
+    public List<PlanSubscriptionCount> getPlanSubscriptionCounts();
 }

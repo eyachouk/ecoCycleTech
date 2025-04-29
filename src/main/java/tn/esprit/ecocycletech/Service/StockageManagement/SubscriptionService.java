@@ -2,6 +2,8 @@ package tn.esprit.ecocycletech.Service.StockageManagement;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import tn.esprit.ecocycletech.Entity.StockageManagement.DTOs.PlanSubscriptionCount;
+import tn.esprit.ecocycletech.Entity.StockageManagement.DTOs.SubscriptionCountByDate;
 import tn.esprit.ecocycletech.Entity.StockageManagement.EspaceStockage;
 import tn.esprit.ecocycletech.Entity.StockageManagement.PlanStockage;
 import tn.esprit.ecocycletech.Entity.StockageManagement.Subscription;
@@ -11,8 +13,12 @@ import tn.esprit.ecocycletech.Repository.StockageManagement.IPlanStockageReposit
 import tn.esprit.ecocycletech.Repository.StockageManagement.ISubscriptionRepository;
 import tn.esprit.ecocycletech.Repository.UserManagement.IUserRepository;
 
+import java.time.LocalDate;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class SubscriptionService implements ISubscriptionService {
@@ -89,7 +95,7 @@ public class SubscriptionService implements ISubscriptionService {
 
     @Override
     public boolean hasActiveSubscription(Long userId) {
-        Optional <Subscription[]> subs = subscriptionRepo.findActiveSubscriptionByUserId(userId);
+        Optional<Subscription[]> subs = subscriptionRepo.findActiveSubscriptionByUserId(userId);
         return subs.isPresent() && subs.get().length > 0;
     }
 
@@ -99,4 +105,56 @@ public class SubscriptionService implements ISubscriptionService {
                 .map(subscription -> subscription.getEspace());
 
     }
+
+
+    public Subscription findByEspace(Long espaceId) {
+        EspaceStockage espace = espaceRepo.findByIdEspace(espaceId);
+        return subscriptionRepo.findSubscriptionByEspace(espace);
+    }
+
+    @Override
+    public List<SubscriptionCountByDate> getSubscriptionsLast7Days() {
+        // Get today's date
+        Date today = new Date();
+
+        // Calculate 6 days before today
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(today);
+        cal.add(Calendar.DAY_OF_YEAR, -6);
+        Date sevenDaysAgo = cal.getTime();
+        List<Object[]> results = subscriptionRepo.countSubscriptionsByPaidAt(sevenDaysAgo, today);
+
+        return results.stream()
+                .map(obj -> new SubscriptionCountByDate(
+                        obj[0].toString(), // assuming obj[0] is Date (paidAt day)
+                        (Long) obj[1]       // and obj[1] is the count
+                ))
+                .collect(Collectors.toList());
+    }
+
+
+@Override
+    public List<PlanSubscriptionCount> getPlanSubscriptionCounts() {
+        List<Object[]> results = subscriptionRepo.countSubscriptionsByPlanStockage();
+
+        return results.stream()
+                .map(obj -> new PlanSubscriptionCount(
+                        (String) obj[0],  // planStockage.titre
+                        (Long) obj[1]     // number of subscriptions
+                ))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<PlanSubscriptionCount> getBestPlansBySubscriptions() {
+        List<Object[]> results = subscriptionRepo.findPlanSubscriptionCounts();
+
+        return results.stream().limit(5)
+                .map(obj -> new PlanSubscriptionCount(
+                        (String) obj[0],
+                        (Long) obj[1]
+                ))
+                .collect(Collectors.toList());
+    }
+
 }

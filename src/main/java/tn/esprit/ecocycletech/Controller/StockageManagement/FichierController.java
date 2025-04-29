@@ -6,14 +6,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import tn.esprit.ecocycletech.Entity.StockageManagement.Fichier;
-import tn.esprit.ecocycletech.Entity.StockageManagement.Fichier;
 import tn.esprit.ecocycletech.Service.StockageManagement.CloudinaryService;
 import tn.esprit.ecocycletech.Service.StockageManagement.IFichierService;
-import tn.esprit.ecocycletech.Service.StockageManagement.IFichierService;
+import tn.esprit.ecocycletech.Service.StockageManagement.GeminiService;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/fichier")
@@ -24,6 +23,8 @@ public class FichierController {
     IFichierService fichierService;
     @Autowired
     CloudinaryService cloudinaryservice;
+    @Autowired
+    GeminiService geminiService;
 
 
     @GetMapping("/getAllFichiers")
@@ -69,4 +70,9 @@ public class FichierController {
     }
 
 
+
+    @PostMapping("/analyze")
+    public ResponseEntity<String> analyzeFile(@RequestParam("file") MultipartFile file) throws IOException, IOException {
+        return geminiService.analyzeText(file);
+    }
 }

@@ -23,11 +23,11 @@ public class PlanStockage implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long idPlan;
     private String titre;
-    private BigDecimal tailleMax;
+    private long tailleMax;
     private double prix;
     private boolean premium;
 
-    @OneToMany(mappedBy = "planStockage", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "planStockage", cascade = {CascadeType.PERSIST, CascadeType.REMOVE, CascadeType.MERGE})
     @JsonIgnore
     private List<Subscription> subscriptions;
 
@@ -48,11 +48,11 @@ public class PlanStockage implements Serializable {
         this.titre = titre;
     }
 
-    public BigDecimal getTailleMax() {
+    public long getTailleMax() {
         return tailleMax;
     }
 
-    public void setTailleMax(BigDecimal tailleMax) {
+    public void setTailleMax(long tailleMax) {
         this.tailleMax = tailleMax;
     }
 

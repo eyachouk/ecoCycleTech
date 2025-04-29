@@ -4,7 +4,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import tn.esprit.ecocycletech.Entity.StockageManagement.Fichier;
 import tn.esprit.ecocycletech.Service.StockageManagement.CloudinaryService;
+import tn.esprit.ecocycletech.Service.StockageManagement.FichierService;
 
 import java.io.IOException;
 import java.util.Map;
@@ -14,6 +16,8 @@ public class CloudinaryController {
 
     @Autowired
     private CloudinaryService cloudinaryService;
+    @Autowired
+    private FichierService fichierService;
 
     @PostMapping("/upload")
     public ResponseEntity<?> uploadFile(@RequestParam("file") MultipartFile file,
@@ -27,9 +31,11 @@ public class CloudinaryController {
     }
 
     @DeleteMapping("/delete")
-    public ResponseEntity<?> deleteFile(@RequestParam("publicId") String publicId) {
+    public ResponseEntity<?> deleteFile(@RequestParam("publicId") String publicId , @RequestParam("type") String resourceType) {
         try {
-            cloudinaryService.deleteFile(publicId);
+          Fichier f= fichierService.GetFichierByPublicId(publicId);
+           fichierService.DeleteFichier(f.getIdFichier());
+           cloudinaryService.deleteFile(publicId,resourceType);
             return ResponseEntity.ok(Map.of("message", "File deleted successfully"));
         } catch (IOException e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));

@@ -5,6 +5,8 @@ import com.cloudinary.utils.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import tn.esprit.ecocycletech.Entity.StockageManagement.Fichier;
+import tn.esprit.ecocycletech.Repository.StockageManagement.IFichierRepository;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -15,6 +17,9 @@ import java.util.*;
 public class CloudinaryService {
 
     private final Cloudinary cloudinary;
+
+    @Autowired
+    private IFichierRepository fichierRepository;
 
     @Autowired
     public CloudinaryService(Cloudinary cloudinary) {
@@ -31,8 +36,12 @@ public class CloudinaryService {
         return cloudinary.uploader().upload(file.getBytes(), options);
     }
 
-    public void deleteFile(String publicId) throws IOException {
-        cloudinary.uploader().destroy(publicId, ObjectUtils.emptyMap());
+    public void deleteFile(String publicId,String resourceType) throws IOException {
+
+        Map<String, Object> options = new HashMap<>();
+        options.put("resource_type", resourceType);
+
+        cloudinary.uploader().destroy(publicId, options);
     }
 
 

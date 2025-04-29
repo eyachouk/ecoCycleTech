@@ -27,7 +27,7 @@ public class EspaceStockage implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long idEspace;
-    private BigDecimal usedTaille;
+    private long usedTaille;
     private double prix;
 
 
@@ -59,11 +59,11 @@ public class EspaceStockage implements Serializable {
         this.idEspace = idEspace;
     }
 
-    public BigDecimal getUsedTaille() {
+    public long getUsedTaille() {
         return usedTaille;
     }
 
-    public void setUsedTaille(BigDecimal usedTaille) {
+    public void setUsedTaille(long usedTaille) {
         this.usedTaille = usedTaille;
     }
 

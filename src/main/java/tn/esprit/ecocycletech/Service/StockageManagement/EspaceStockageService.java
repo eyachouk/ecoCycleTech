@@ -3,10 +3,7 @@ package tn.esprit.ecocycletech.Service.StockageManagement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PathVariable;
-import tn.esprit.ecocycletech.Entity.StockageManagement.EspaceStockage;
-import tn.esprit.ecocycletech.Entity.StockageManagement.PlanStockage;
-import tn.esprit.ecocycletech.Entity.StockageManagement.StatutEspace;
-import tn.esprit.ecocycletech.Entity.StockageManagement.Subscription;
+import tn.esprit.ecocycletech.Entity.StockageManagement.*;
 import tn.esprit.ecocycletech.Repository.StockageManagement.IEspaceStockageRepository;
 import tn.esprit.ecocycletech.Repository.StockageManagement.IFichierRepository;
 import tn.esprit.ecocycletech.Repository.StockageManagement.IPlanStockageRepository;
@@ -89,6 +86,19 @@ public class EspaceStockageService implements IEspaceStockageService {
        }
         espaceStockageRepository.save(e);
         return e;
+    }
+
+    @Override
+    public Long getOccupiedSpace(Long id){
+        EspaceStockage e = espaceStockageRepository.findByIdEspace(id);
+        if (e == null || e.getFichiers() == null) {
+            return 0L;
+        }
+        return e.getFichiers()
+                .stream()
+                .filter(file -> file.getTaille() != null)
+                .mapToLong(Fichier::getTaille)
+                .sum();
     }
 
 
