@@ -1,5 +1,6 @@
 package tn.esprit.ecocycletech.Entity.PointsDeVenteEtCollecteManagement;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -22,6 +23,7 @@ public class Vehicule implements Serializable {
     private String nomChauffeur;
     private int numTelephoneChauffeur;
     private int capaciteVehicule;
+    @JsonIgnore
     @OneToMany(mappedBy = "vehicule", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Collecte> collecteList;
 

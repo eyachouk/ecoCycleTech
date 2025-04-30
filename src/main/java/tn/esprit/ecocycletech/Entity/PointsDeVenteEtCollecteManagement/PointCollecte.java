@@ -1,10 +1,12 @@
 package tn.esprit.ecocycletech.Entity.PointsDeVenteEtCollecteManagement;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import tn.esprit.ecocycletech.Entity.CommandesManagement.CommandeReparation;
 import tn.esprit.ecocycletech.Entity.DemandeDeRecyclageManagement.DemandeRecyclage;
 import tn.esprit.ecocycletech.Entity.Enumerations.Disponibilite;
 
@@ -29,6 +31,16 @@ public class PointCollecte implements Serializable {
     private LocalTime heureFermeturePointCollecte;
     private int capacitePointCollecte;
     private Disponibilite disponibilitePointCollecte;
-    @OneToMany(mappedBy = "pointCollecte", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private String Location;
+    private Double latitude;
+    private Double longitude;
+    @ElementCollection
+    private List<String> availableDays; // List of days when collection is available (e.g., ["MONDAY", "WEDNESDAY", "FRIDAY"])
+
+@OneToMany(mappedBy = "pointCollecte", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+@JsonIgnoreProperties("pointCollecte") // Prevent infinite recursion
     private List<Collecte> collecteList;
+@OneToMany(mappedBy = "pointCollecte", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+@JsonIgnoreProperties("pointCollecte") // Prevent infinite recursion
+    private List<CommandeReparation> commandeReparationList;
 }

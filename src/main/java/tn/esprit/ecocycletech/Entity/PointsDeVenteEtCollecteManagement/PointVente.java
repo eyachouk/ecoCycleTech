@@ -25,7 +25,5 @@ public class PointVente implements Serializable {
     private LocalTime heureFermeturePointVente;
     private int numTelephonePointVente;
     private String emailPointVente;
-    @OneToMany(mappedBy = "pointVente", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<CommandeReparation> commandeReparationList;
 
 }

@@ -1,5 +1,6 @@
 package tn.esprit.ecocycletech.Entity.CommandesManagement;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -7,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import tn.esprit.ecocycletech.Entity.Enumerations.Etat;
 import tn.esprit.ecocycletech.Entity.Enumerations.TypeAppareil;
+import tn.esprit.ecocycletech.Entity.PointsDeVenteEtCollecteManagement.PointCollecte;
 import tn.esprit.ecocycletech.Entity.PointsDeVenteEtCollecteManagement.PointVente;
 import tn.esprit.ecocycletech.Entity.UserManagement.User;
 
@@ -30,13 +32,14 @@ public class CommandeReparation implements Serializable {
     @Temporal(TemporalType.DATE)
     private Date dateCreationCommande;
     private Etat etatCommande;
-    @ManyToOne
-    @JoinColumn(name = "idUser", nullable = false)
-    private User user;
+    //@ManyToOne
+    //@JoinColumn(name = "idUser", nullable = false)
+    //private User user;
     @OneToOne(mappedBy = "commandeReparation", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private RendezVous rendezVous;
-    @ManyToOne
-    @JoinColumn(name = "idPointVente", nullable = false)
-    private PointVente pointVente;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JsonIgnore
+    @JoinColumn(name = "idPointCollecte", nullable = false)
+    private PointCollecte pointCollecte;
 
 }
